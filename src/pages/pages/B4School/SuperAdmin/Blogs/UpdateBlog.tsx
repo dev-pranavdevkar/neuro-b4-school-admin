@@ -95,12 +95,29 @@ export default function UpdateBlog({ show, handleclose, selectedBlog }) {
 
   const onSubmit = async (data: any) => {
     const id = selectedBlog.id
+    const { title,
+      sub_title,
+      primary_image,
+      primary_text_field,
+      secondary_image,
+      secondary_text_field,
+
+    } = data;
+    console.log(primary_image[0]);
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('sub_title', sub_title);
+    formData.append('primary_image', primary_image[0]);
+    formData.append('primary_text_field', primary_text_field);
+    formData.append('secondary_image', secondary_image[0]);
+    formData.append('secondary_text_field', secondary_text_field);
 
     setLoading(true)
     try {
       const CountryAdmin = await axiosInstance.post(
         `/admin/v1/blog/update/${id}`,
-        { ...data }
+        formData
       ).then((response) => {
         setLoading(false)
         const data = response.data
@@ -258,13 +275,18 @@ export default function UpdateBlog({ show, handleclose, selectedBlog }) {
               </FormControl>
 
             </Grid>
+            <div style={{ width: '100%', marginBottom: '5px', display: 'flex' }}>
+              <p style={{ marginRight: '10px' }}>privious primary Photo</p>
+
+              <img style={{ width: '100px', height: '100px' }} src={selectedBlog.secondary_image} alt='Primary Image' />
+            </div>
             <Grid item xs={4}>
               <FormControl fullWidth>
 
                 <TextField
 
                   label='Secondary Image'
-                  {...register('Secondary Image')}
+                  {...register('secondary_image')}
                   type='file'
                   size='small'
                   placeholder='Primery Image'
