@@ -96,8 +96,8 @@ export default function OptionTypeForm() {
     }
 
 
-    useEffect(() => {
-    }, []);
+    // useEffect(() => {
+    // }, []);
 
     return (
         <Card>

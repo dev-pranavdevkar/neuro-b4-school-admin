@@ -132,7 +132,6 @@ export default function AddImage() {
               <FormControl fullWidth>
 
                 <TextField
-
                   label='Image'
                   {...register('image')}
                   type='file'

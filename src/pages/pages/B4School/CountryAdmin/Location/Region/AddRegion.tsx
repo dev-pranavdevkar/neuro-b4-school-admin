@@ -37,6 +37,9 @@ interface Region {
   state_code: string;
   city_code: string;
 
+
+
+
 }
 
 interface AddRegion {
@@ -44,7 +47,14 @@ interface AddRegion {
 }
 
 const schema = yup.object().shape({
-  name: yup.string().required('Region Name is Required'),
+  name: yup.string().required('Branch Name is Required'),
+  facebook_url: yup.string().nullable(),
+  instagram_url: yup.string().nullable(),
+  google_plus_url: yup.string().nullable(),
+  linkedin_url: yup.string().nullable(),
+  twitter_url: yup.string().nullable(),
+  telegram_url: yup.string().nullable(),
+  title: yup.string().nullable()
 
 });
 
@@ -66,8 +76,13 @@ export default function AddRegion() {
     formState: { errors }
   } = useForm({ resolver: yupResolver(schema), })
   const [optionTypes, setOptionTypes] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
   const [StateOptionTypes, setStateOptionTypes] = useState([]);
   const [CityOptionTypes, setCityOptionTypes] = useState([]);
+  
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedState, setSelectedState] = useState('');
   const router = useRouter()
   const Editor = dynamic(
     () => import('react-draft-wysiwyg').then((mod) => mod.Editor),
@@ -138,40 +153,64 @@ export default function AddRegion() {
     fetchCountry();
   }, []);
 
-  const fetchState = async () => {
-
-    try {
-      const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
-      setStateOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
-  };
-  useEffect(() => {
-    fetchState();
-  }, []);
-
-  const fetchCity = async () => {
-
-    try {
-      const response = await axiosInstance.get(`/admin/v1/city/getAllWithoutLimit`)
-      setCityOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
-  };
-  useEffect(() => {
-    fetchCity();
-  }, []);
+  const handleCountrySelect = (id:any) => {
+    setSelectedCountry(id);
+    axiosInstance.get(`admin/v1/country/get/${id}`)
+        .then((response) => {
+            setStates(response.data.data.States ? response.data.data.States : []);
+            console.log(states);
+        })
+        .catch((error) => {
+            console.error('Error fetching states:', error);
+        });
+};
 
 
+  const handleStateSelect = (id:any) => {
+    setSelectedState(id);
+    axiosInstance.get(`admin/v1/state/get/${id}`)
+        .then((response) => {
+            setCities(response.data.data.Cities ? response.data.data.Cities : []);
+        })
+        .catch((error) => {
+            console.error('Error fetching cities:', error);
+        });
+};
+
+
+  // const fetchState = async () => {
+
+  //   try {
+  //     const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
+  //     setStateOptionTypes(response.data?.data)
+  //   }
+  //   catch (error) {
+  //     return (error)
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchState();
+  // }, []);
+
+  // const fetchCity = async () => {
+
+  //   try {
+  //     const response = await axiosInstance.get(`/admin/v1/city/getAllWithoutLimit`)
+  //     setCityOptionTypes(response.data?.data)
+  //   }
+  //   catch (error) {
+  //     return (error)
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchCity();
+  // }, []);
 
   return (
     <Card>
-      <CardHeader title='Add Region' />
+      <CardHeader title='Add Branch' />
       <CardContent>
+      
         <form onSubmit={handleSubmit(onSubmit)} >
           <Grid container spacing={5}>
 
@@ -193,6 +232,8 @@ export default function AddRegion() {
                   error={Boolean(errors.attribute_type)}
                   labelId='validation-country_code'
                   aria-describedby='validation-country_code'
+                  value={selectedCountry}
+                  onChange={(e) => handleCountrySelect(e.target.value)}
                 >
                   {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
@@ -224,8 +265,10 @@ export default function AddRegion() {
                   error={Boolean(errors.attribute_type)}
                   labelId='validation-state_code'
                   aria-describedby='validation-state_code'
+                  value={selectedState}
+                  onChange={(e) => handleStateSelect(e.target.value)}
                 >
-                  {StateOptionTypes && StateOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+                  {states.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
                 </Select>
@@ -256,7 +299,7 @@ export default function AddRegion() {
                   labelId='validation-city_code'
                   aria-describedby='validation-city_code'
                 >
-                  {CityOptionTypes && CityOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+                  {cities.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
                 </Select>
@@ -273,11 +316,11 @@ export default function AddRegion() {
 
                 <TextField
 
-                  label='City Name'
+                  label='Branch Name'
                   {...register('name')}
 
                   size='small'
-                  placeholder='City'
+                  placeholder='Branch Name'
                   error={Boolean(errors.name)}
                   aria-describedby='validation-async-name'
                 />
@@ -289,6 +332,223 @@ export default function AddRegion() {
                 )}
               </FormControl>
             </Grid>
+
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Branch Email ID'
+                  {...register('email')}
+
+                  size='small'
+                  placeholder='Branch Email ID'
+                  error={Boolean(errors.email)}
+                  aria-describedby='validation-async-email'
+                />
+
+                {errors.email && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-email'>
+                    {errors.email.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Mobile Number'
+                  {...register('mobile_number')}
+
+                  size='small'
+                  placeholder='Mobile Number'
+                  error={Boolean(errors.mobile_number)}
+                  aria-describedby='validation-async-mobile_number'
+                />
+
+                {errors.mobile_number && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-mobile_number'>
+                    {errors.mobile_number.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Address'
+                  {...register('address')}
+
+                  size='small'
+                  placeholder='Address'
+                  error={Boolean(errors.address)}
+                  aria-describedby='validation-async-address'
+                  multiline
+                  maxRows={2}
+                />
+
+                {errors.address && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-address'>
+                    {errors.address.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Google Map URL'
+                  {...register('map')}
+
+                  size='small'
+                  placeholder='Google Map URL'
+                  error={Boolean(errors.map)}
+                  aria-describedby='validation-async-map'
+               
+                />
+
+                {errors.address && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-map'>
+                    {errors.map.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Facebook Page URL'
+                  {...register('facebook_url')}
+
+                  size='small'
+                  placeholder='Facebook Page URL'
+                  error={Boolean(errors.facebook_url)}
+                  aria-describedby='validation-async-facebook_url'
+                />
+
+                {errors.facebook_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-facebook_url'>
+                    {errors.facebook_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Instagram Page URL'
+                  {...register('instagram_url')}
+
+                  size='small'
+                  placeholder='Instagram Page URL'
+                  error={Boolean(errors.instagram_url)}
+                  aria-describedby='validation-async-instagram_url'
+                />
+
+                {errors.instagram_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-instagram_url'>
+                    {errors.instagram_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Google Plus URL'
+                  {...register('google_plus_url')}
+
+                  size='small'
+                  placeholder='Google Plus URL'
+                  error={Boolean(errors.google_plus_url)}
+                  aria-describedby='validation-async-google_plus_url'
+                />
+
+                {errors.google_plus_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-google_plus_url'>
+                    {errors.google_plus_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Linkedin URL'
+                  {...register('linkedin_url')}
+
+                  size='small'
+                  placeholder='Linkedin URL'
+                  error={Boolean(errors.linkedin_url)}
+                  aria-describedby='validation-async-linkedin_url'
+                />
+
+                {errors.linkedin_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-linkedin_url'>
+                    {errors.linkedin_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Twitter URL'
+                  {...register('twitter_url')}
+
+                  size='small'
+                  placeholder='Twitter URL'
+                  error={Boolean(errors.twitter_url)}
+                  aria-describedby='validation-async-twitter_url'
+                />
+
+                {errors.twitter_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-twitter_url'>
+                    {errors.twitter_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Telegram URL'
+                  {...register('telegram_url')}
+
+                  size='small'
+                  placeholder='Telegram URL'
+                  error={Boolean(errors.telegram_url)}
+                  aria-describedby='validation-async-telegram_url'
+                />
+
+                {errors.telegram_url && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-telegram_url'>
+                    {errors.telegram_url.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+         
             <Grid item xs={12}>
               <FormControl fullWidth>
 

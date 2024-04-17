@@ -61,19 +61,25 @@ class RegionList extends Component<{}, RegionList> {
     this.setState({
       rows: [],
       loading: true,
-    })
+    });
     axiosInstance.get(`/admin/v1/region/getAllWithoutLimit?pageNo=${page}&limit=${pageSize}`)
-      .then((response) => {
-        this.setState({
-          rows: response.data.data ? response.data.data : [],
-          totalRows: response.data.data.totalCount,
-          loading: false,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
+    .then((response) => {
+      const regions = response.data.data;
+  
+      // Log the original regions data
+      console.log("Regions",regions);
+  
+      this.setState({
+        rows: regions,
+        totalRows: regions.length,
+        loading: false,
       });
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   };
+
 
   handlePageChange = (page: number, e: any) => {
     console.log("page", page)
@@ -115,19 +121,22 @@ class RegionList extends Component<{}, RegionList> {
         flex: 1,
       },
       {
-        field: 'city_name',
+        field: 'City',
         headerName: 'City',
         flex: 1,
+        valueGetter: (params) => params.row.City.name, // Access city name from nested City object
       },
       {
-        field: 'state_name',
+        field: 'State',
         headerName: 'State',
         flex: 1,
+        valueGetter: (params) => params.row.State.name, // Access state name from nested State object
       },
       {
-        field: 'country_name',
+        field: 'Country',
         headerName: 'Country',
         flex: 1,
+        valueGetter: (params) => params.row.Country.name, // Access country name from nested Country object
       },
 
       {

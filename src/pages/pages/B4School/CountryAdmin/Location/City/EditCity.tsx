@@ -58,6 +58,10 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
 
   const [loading, setLoading] = useState(false)
   const [editorData, setEditorData] = useState();
+  const [selectedCountry, setSelectedCountry] = useState(selectedCountryPage.country_code);
+  const [selectedState, setSelectedState] = useState(selectedCountryPage.state_code);
+  const [states, setStates] = useState([]);
+  const [statesData, setStatesData] = useState([]);
   const [pageContent, setPageContent] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [optionTypes, setOptionTypes] = useState([]);
@@ -74,11 +78,18 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
     () => import('react-draft-wysiwyg').then((mod) => mod.Editor),
     { ssr: false }
   )
-  console.log(selectedCountryPage)
+  console.log("selectedCountryPage,selectedCountryPage", selectedCountryPage)
   useEffect(() => {
     setValue('country_code', selectedCountryPage['country_code'])
 
   }, [selectedCountryPage]);
+
+  useEffect(() => {
+    if (selectedCountryPage?.country_code){
+      handleCountrySelect(selectedCountryPage?.country_code)
+    }
+  },[selectedCountryPage?.country_code])
+
   const wrapperStyle = {
     border: "1px solid #F1F1F1",
     padding: "5px",
@@ -94,6 +105,7 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
   const onSubmit = async (data: any) => {
     const id = selectedCountryPage.id
 
+
     setLoading(true)
     try {
       const CountryAdmin = await axiosInstance.post(
@@ -102,7 +114,7 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
       ).then((response) => {
         setLoading(false)
         const data = response.data
-        console.log(data)
+        console.log("data,data")
         if (data?.success) {
 
           toast.success(data.message, {
@@ -141,6 +153,7 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
     setValue('name', selectedCountryPage['name'])
     setValue('country_code', selectedCountryPage['country_code'])
     setValue('state_code', selectedCountryPage['state_code'])
+    
 
 
   }, [selectedCountryPage]);
@@ -159,19 +172,24 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
     fetchCountry();
   }, []);
 
-  const fetchState = async () => {
+ 
+  const handleCountrySelect = (id:any) => {
+    setSelectedCountry(id);
+    axiosInstance.get(`admin/v1/country/get/${id}`)
+        .then((response) => {
+            setStates(response.data.data.States ? response.data.data.States : []);
+            console.log(states);
+        })
+        .catch((error) => {
+            console.error('Error fetching states:', error);
+        });
+};
 
-    try {
-      const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
-      setStateOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
-  };
-  useEffect(() => {
-    fetchState();
-  }, []);
+
+
+
+
+
 
   return (
     <Dialog
@@ -223,6 +241,9 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
                   error={Boolean(errors.attribute_type)}
                   labelId='validation-state_code'
                   aria-describedby='validation-state_code'
+                  value={selectedCountry}
+                  defaultValue=''
+                  onChange={(e) => handleCountrySelect(e.target.value)}
                 >
                   {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
@@ -241,8 +262,8 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
               <FormControl fullWidth size='small'>
                 <InputLabel
                   id='validation-basic-attribute_type'
-                  error={Boolean(errors.country_code)}
-                  htmlFor='validation-basic-country_code'
+                  error={Boolean(errors.state_code)}
+                  htmlFor='validation-basic-state_code'
                 >
                   Select State
                 </InputLabel>
@@ -250,19 +271,21 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
                 <Select
 
                   label=' Select State'
-                  {...register('country_code')}
+                  {...register('state_code')}
                   error={Boolean(errors.attribute_type)}
-                  labelId='validation-country_code'
-                  aria-describedby='validation-country_code'
+                  labelId='validation-state_code'
+                  aria-describedby='validation-state_code'
+                  value={selectedState}
+                  defaultValue={selectedState}
                 >
-                  {StateOptionTypes && StateOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+                  {states.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
                 </Select>
 
-                {errors.country_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
-                    {errors.country_code.message}
+                {errors.state_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-state_code'>
+                    {errors.state_code.message}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -288,6 +311,8 @@ export default function EditCity({ show, handleclose, selectedCountryPage }) {
                 )}
               </FormControl>
             </Grid>
+
+            
 
 
 

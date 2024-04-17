@@ -52,8 +52,6 @@ const schema = yup.object().shape({
 
 });
 
-
-
 export default function AddBlog() {
   const [loading, setLoading] = useState(false)
   const [editorData, setEditorData] = useState('');
@@ -85,32 +83,11 @@ export default function AddBlog() {
   const [optionTypes, setOptionTypes] = useState([]);
   const onSubmit = async (data: any) => {
 
-    const { title,
-      sub_title,
-      primary_image,
-      primary_text_field,
-      secondary_image,
-      secondary_text_field,
-
-    } = data;
-    console.log(primary_image[0]);
-
-    const formData = new FormData();
-    formData.append('title', title);
-    formData.append('sub_title', sub_title);
-    formData.append('primary_image', primary_image[0]);
-    formData.append('primary_text_field', primary_text_field);
-    formData.append('secondary_image', secondary_image[0]);
-    formData.append('secondary_text_field', secondary_text_field);
-
-
-
-
     setLoading(true)
     try {
       const Blogs = await axiosInstance.post(
         `/admin/v1/blog/create`,
-        formData
+        { ...data }
       ).then((response) => {
         setLoading(false)
         const data = response.data

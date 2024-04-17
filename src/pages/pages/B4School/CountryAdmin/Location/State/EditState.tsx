@@ -59,6 +59,7 @@ export default function EditState({ show, handleclose, selectedCountryPage }) {
   const [pageContent, setPageContent] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [optionTypes, setOptionTypes] = useState([]);
+  
   const {
     control,
     register,
@@ -90,7 +91,7 @@ export default function EditState({ show, handleclose, selectedCountryPage }) {
 
   const onSubmit = async (data: any) => {
     const id = selectedCountryPage.id
-
+console.log("selectedCountryPage.id",selectedCountryPage)
     setLoading(true)
     try {
       const CountryAdmin = await axiosInstance.post(
@@ -140,7 +141,9 @@ export default function EditState({ show, handleclose, selectedCountryPage }) {
 
 
   }, [selectedCountryPage]);
+  
 
+  
   const fetchData = async () => {
 
     try {
@@ -207,10 +210,10 @@ export default function EditState({ show, handleclose, selectedCountryPage }) {
                   error={Boolean(errors.attribute_type)}
                   labelId='validation-country_code'
                   aria-describedby='validation-country_code'
+                  defaultValue={selectedCountryPage.id}
 
                 >
                   {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
-
 
                 </Select>
 

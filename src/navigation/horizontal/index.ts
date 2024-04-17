@@ -626,7 +626,7 @@ const navigation = (): HorizontalNavItemsType => {
           icon: 'bx:support',
           externalLink: true,
           openInNewTab: true,
-          path: 'https://themeselection.com/support'
+          path: 'https://neuromonk.com/support'
         },
         {
           title: 'Documentation',

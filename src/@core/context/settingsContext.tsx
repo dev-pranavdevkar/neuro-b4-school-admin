@@ -1,13 +1,7 @@
 // ** React Imports
 import { createContext, useState, ReactNode, useEffect } from 'react'
-
-// ** MUI Imports
 import { Direction } from '@mui/material'
-
-// ** ThemeConfig Import
 import themeConfig from 'src/configs/themeConfig'
-
-// ** Types Import
 import { Skin, Mode, AppBar, Footer, ThemeColor, ContentWidth, VerticalNavToggle } from 'src/@core/layouts/types'
 
 export type Settings = {
@@ -15,7 +9,7 @@ export type Settings = {
   mode: Mode
   appBar?: AppBar
   footer?: Footer
-  navHidden?: boolean // navigation menu
+  navHidden?: boolean
   appBarBlur: boolean
   direction: Direction
   navCollapsed: boolean
@@ -27,22 +21,8 @@ export type Settings = {
   toastPosition?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
 }
 
-export type PageSpecificSettings = {
-  skin?: Skin
-  mode?: Mode
-  appBar?: AppBar
-  footer?: Footer
-  navHidden?: boolean // navigation menu
-  appBarBlur?: boolean
-  direction?: Direction
-  navCollapsed?: boolean
-  themeColor?: ThemeColor
-  contentWidth?: ContentWidth
-  layout?: 'vertical' | 'horizontal'
-  lastLayout?: 'vertical' | 'horizontal'
-  verticalNavToggleType?: VerticalNavToggle
-  toastPosition?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right'
-}
+export type PageSpecificSettings = Partial<Settings>; // Change type to Partial<Settings>
+
 export type SettingsContextValue = {
   settings: Settings
   saveSettings: (updatedSettings: Settings) => void
@@ -50,7 +30,7 @@ export type SettingsContextValue = {
 
 interface SettingsProviderProps {
   children: ReactNode
-  pageSettings?: PageSpecificSettings | void
+  pageSettings?: PageSpecificSettings // Change to PageSpecificSettings
 }
 
 const initialSettings: Settings = {
@@ -70,45 +50,7 @@ const initialSettings: Settings = {
   appBar: themeConfig.layout === 'horizontal' && themeConfig.appBar === 'hidden' ? 'fixed' : themeConfig.appBar
 }
 
-const staticSettings = {
-  appBar: initialSettings.appBar,
-  footer: initialSettings.footer,
-  layout: initialSettings.layout,
-  navHidden: initialSettings.navHidden,
-  lastLayout: initialSettings.lastLayout,
-  toastPosition: initialSettings.toastPosition
-}
-
-const restoreSettings = (): Settings | null => {
-  let settings = null
-
-  try {
-    const storedData: string | null = window.localStorage.getItem('settings')
-
-    if (storedData) {
-      settings = { ...JSON.parse(storedData), ...staticSettings }
-    } else {
-      settings = initialSettings
-    }
-  } catch (err) {
-    console.error(err)
-  }
-
-  return settings
-}
-
-// set settings in localStorage
-const storeSettings = (settings: Settings) => {
-  const initSettings = Object.assign({}, settings)
-
-  delete initSettings.appBar
-  delete initSettings.footer
-  delete initSettings.layout
-  delete initSettings.navHidden
-  delete initSettings.lastLayout
-  delete initSettings.toastPosition
-  window.localStorage.setItem('settings', JSON.stringify(initSettings))
-}
+// Remove unnecessary staticSettings and restoreSettings functions
 
 // ** Create Context
 export const SettingsContext = createContext<SettingsContextValue>({
@@ -121,16 +63,15 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
   const [settings, setSettings] = useState<Settings>({ ...initialSettings })
 
   useEffect(() => {
-    const restoredSettings = restoreSettings()
+    const restoredSettings = localStorage.getItem('settings'); // Remove restoreSettings function
 
     if (restoredSettings) {
-      setSettings({ ...restoredSettings })
+      setSettings({ ...JSON.parse(restoredSettings), ...initialSettings }); // Merge with initialSettings
     }
     if (pageSettings) {
       setSettings({ ...settings, ...pageSettings })
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSettings])
 
   useEffect(() => {
@@ -141,11 +82,10 @@ export const SettingsProvider = ({ children, pageSettings }: SettingsProviderPro
       saveSettings({ ...settings, appBar: 'fixed' })
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.layout])
 
   const saveSettings = (updatedSettings: Settings) => {
-    storeSettings(updatedSettings)
+    localStorage.setItem('settings', JSON.stringify(updatedSettings)); // Store settings directly
     setSettings(updatedSettings)
   }
 

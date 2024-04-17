@@ -22,9 +22,9 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 
-export default function ViewBlog({ show, handleclose, SelectedAdmissionId }) {
+export default function ViewBlog({ show, handleclose, selectedProgramPage }) {
 
-  const html = SelectedAdmissionId.id
+  const html = selectedProgramPage.id
 
 
   return (
@@ -59,29 +59,29 @@ export default function ViewBlog({ show, handleclose, SelectedAdmissionId }) {
 
             <Grid container spacing={5}>
               <Grid item xs={6}>
-                Title: <br />{SelectedAdmissionId.title}
+                Title: <br />{selectedProgramPage.title}
 
               </Grid>
               <Grid item xs={6}>
-                Sub Title:<br /> {SelectedAdmissionId.sub_title}
+                Sub Title:<br /> {selectedProgramPage.sub_title}
 
               </Grid>
               <Grid item xs={6}>
-                Primary Image:<br />{SelectedAdmissionId.primary_image}
+                Primary Image:<br />{selectedProgramPage.primary_image}
 
               </Grid>
               <Grid item xs={6}>
                 Primery Text:<br />
-                <img src={SelectedAdmissionId.primary_text_field} alt="" />
+                <img src={selectedProgramPage.primary_text_field} alt="" />
 
               </Grid>
               <Grid item xs={6}>
                 Secondary Image:<br />
-                <img src={SelectedAdmissionId.secondary_image} alt="" />
+                <img src={selectedProgramPage.secondary_image} alt="" />
 
               </Grid>
               <Grid item xs={6}>
-                Secondary Text :<br />{SelectedAdmissionId.secondary_text_field}
+                Secondary Text :<br />{selectedProgramPage.secondary_text_field}
 
               </Grid>
               <Grid item xs={12}>

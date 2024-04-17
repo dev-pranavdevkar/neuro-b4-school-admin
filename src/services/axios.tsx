@@ -3,14 +3,25 @@ import axios, { AxiosInstance } from 'axios';
 const axiosInstance: AxiosInstance = axios.create({
     // Axios instance configuration options
   baseURL: 'https://api-b4school.shreekakajimasale.com/api'
+//   baseURL: 'http://192.168.0.121:3000/api'
+
 });
 
 axiosInstance.interceptors.request.use(
     (config) => {
+        console.log(config)
         const token = localStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            config.headers['Content-Type'] = 'multipart/form-data';
         }
+
+        // Check if the request contains form data
+        if (config.data instanceof FormData) {
+            // Set Content-Type header for form data
+           
+        }
+
         return config;
     },
     (error) => {
@@ -18,6 +29,7 @@ axiosInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
+
 
 axiosInstance.interceptors.response.use(
     (response) => {

@@ -26,7 +26,7 @@ export default function index() {
           />
         </Grid>
         <Grid item>
-          <Link href='/pages/B4School/SuperAdmin/Blogs/AddBlog' passHref style={{ textDecoration: 'none' }}>
+          <Link href='/pages/B4School/SuperAdmin/News/AddBlog' passHref style={{ textDecoration: 'none' }}>
             <Button type='submit' variant='contained' style={{ marginBottom: '20px' }}>
               Add Blog
             </Button>

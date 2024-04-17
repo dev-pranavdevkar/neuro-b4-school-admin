@@ -611,7 +611,7 @@ const navigation: VerticalNavItemsType = [
         title: 'Raise Support',
         externalLink: true,
         openInNewTab: true,
-        path: 'https://themeselection.com/support'
+        path: 'https://neuromonk.com/support'
       },
       {
         title: 'Documentation',

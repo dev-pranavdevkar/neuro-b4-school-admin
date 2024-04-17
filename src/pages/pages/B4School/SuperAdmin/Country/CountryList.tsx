@@ -5,7 +5,7 @@ import { Card, CardHeader } from "@mui/material";
 import { Box } from "@mui/system";
 import Button from '@mui/material/Button'
 import Link from 'next/link'
-
+import { baseUrl } from 'src/configs/baseURL';
 import Icon from 'src/@core/components/icon'
 import UpdateCountryById from './UpdateCountryById';
 import CountryDeletePopup from './DeleteCountryById';
@@ -112,11 +112,14 @@ class CountryList extends Component<{}, CountryListState> {
                 headerName: 'Country Name',
                 flex: 1,
             },
-            // {
-            //     field: 'page_content',
-            //     headerName: 'Page Content',
-            //     flex: 1,
-            // },
+            {
+                field: 'image',
+                headerName: 'Image',
+                flex: 1,
+                renderCell: (params: GridCellParams) => (
+                  <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit:'contain' }} />
+                ),
+              },
 
             {
                 field: 'actions',

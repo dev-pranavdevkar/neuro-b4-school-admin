@@ -12,21 +12,21 @@ const FooterContent = () => {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
       <Typography sx={{ mr: 2 }}>
-        {`© ${new Date().getFullYear()}, Made with `}
+        {`© ${new Date().getFullYear()}, Developed By `}
         <Box component='span' sx={{ color: 'error.main' }}>
-          ❤️
+       
         </Box>
         {` by `}
-        <MuiLink target='_blank' href='https://themeselection.com/'>
-          ThemeSelection
+        <MuiLink target='_blank' href='https://neuromonk.com/'>
+          Neuromonk Infotech Pvt. Ltd
         </MuiLink>
       </Typography>
-      {hidden ? null : (
+      {/* {hidden ? null : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', '& :not(:last-child)': { mr: 4 } }}>
-          <MuiLink target='_blank' href='https://themeselection.com/license/'>
+          <MuiLink target='_blank' href='https://neuromonk.com/'>
             License
           </MuiLink>
-          <MuiLink target='_blank' href='https://themeselection.com/'>
+          <MuiLink target='_blank' href='https://neuromonk.com/'>
             More Themes
           </MuiLink>
           <MuiLink
@@ -35,11 +35,11 @@ const FooterContent = () => {
           >
             Documentation
           </MuiLink>
-          <MuiLink target='_blank' href='https://themeselection.com/support/'>
+          <MuiLink target='_blank' href='https://neuromonk.com/support/'>
             Support
           </MuiLink>
         </Box>
-      )}
+      )} */}
     </Box>
   )
 }

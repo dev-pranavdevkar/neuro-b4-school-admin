@@ -139,7 +139,7 @@ const LoginV2 = () => {
             Welcome to {themeConfig.templateName}! 👋🏻
           </Typography>
           <Typography sx={{ mb: 6, color: 'text.secondary' }}>
-            Please sign-in to your account and start the adventure
+            {/* Please sign-in to your account and start the adventure */}
           </Typography>
           <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
             <TextField autoFocus fullWidth id='email' label='Email' sx={{ mb: 4 }} />

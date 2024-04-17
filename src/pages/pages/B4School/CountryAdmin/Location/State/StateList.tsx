@@ -63,7 +63,11 @@ class StateList extends Component<{}, StateList> {
     axiosInstance.get(`/admin/v1/state/getAll?pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
         this.setState({
-          rows: response.data.data.states ? response.data.data.states : [],
+          rows: response.data.data.states ? response.data.data.states.map((state: any) => ({
+            id: state.id,
+            name: state.name,
+            country_name: state.Country.name
+          })) : [],
           totalRows: response.data.data.totalCount,
           loading: false,
         });
@@ -72,6 +76,7 @@ class StateList extends Component<{}, StateList> {
         console.error(error);
       });
   };
+
 
   handlePageChange = (page: number, e: any) => {
     console.log("page", page)

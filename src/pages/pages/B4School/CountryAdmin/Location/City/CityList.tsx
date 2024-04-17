@@ -55,17 +55,26 @@ class CityList extends Component<{}, CityList> {
   componentDidMount() {
     this.fetchData();
   }
-
   fetchData = () => {
     const { pageSize, page } = this.state;
     this.setState({
       rows: [],
       loading: true,
-    })
+    });
+  
     axiosInstance.get(`/admin/v1/city/getAll?pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
+        console.log('API Response:', response.data); // Log the response data
+        const cities = response.data.data.cities || [];
+        const formattedCities = cities.map(city => ({
+          ...city,
+          id: city.id,
+          name: city.name,
+          state_name: city.State.name, // Access the name field of the nested State object
+          country_name: city.Country.name,
+        }));
         this.setState({
-          rows: response.data.data.cities ? response.data.data.cities : [],
+          rows: formattedCities,
           totalRows: response.data.data.totalCount,
           loading: false,
         });
@@ -74,6 +83,7 @@ class CityList extends Component<{}, CityList> {
         console.error(error);
       });
   };
+  
 
   handlePageChange = (page: number, e: any) => {
     console.log("page", page)
@@ -96,6 +106,7 @@ class CityList extends Component<{}, CityList> {
   };
 
   handleEditClick = (params: GridCellParams) => {
+    console.log(params)
     this.setState({ selectedCountryPage: params.row })
     this.setState({ openEdit: true });
 

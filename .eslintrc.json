@@ -5,48 +5,44 @@
     "prettier"
   ],
   "rules": {
-    "prefer-const": "off",
-    "react/jsx-key": "off",
-    "no-unused-vars":"warn",
     "react/display-name": "off",
     "@next/next/no-img-element": "off",
     "react/no-unescaped-entities": "off",
     "import/no-anonymous-default-export": "off",
-    "@typescript-eslint/no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
     // add new line above comment
-    "lines-around-comment": [
-      "off",
-      {
-        "beforeLineComment": "off",
-        "beforeBlockComment": "off",
-        "allowBlockStart": "off",
-        "allowClassStart": "off",
-        "allowObjectStart": "off",
-        "allowArrayStart": "off"
-      }
-    ],
+    // "lines-around-comment": [
+    //   "error",
+    //   {
+    //     "beforeLineComment": true,
+    //     "beforeBlockComment": true,
+    //     "allowBlockStart": true,
+    //     "allowClassStart": true,
+    //     "allowObjectStart": true,
+    //     "allowArrayStart": true
+    //   }
+    // ],
     // add new line above return
-    "newline-before-return": "off",
+    // "newline-before-return": "error",
     // add new line below import
-    "import/newline-after-import": [
-      "off",
-      {
-        "count": 1
-      }
-    ],
-    "@typescript-eslint/ban-types": [
-      "off",
-      {
-        "extendDefaults": true,
-        "types": {
-          "{}": false
-        }
-      }
-    ]
+    // "import/newline-after-import": [
+    //   "error",
+    //   {
+    //     "count": 1
+    //   }
+    // ],
+    // "@typescript-eslint/ban-types": [
+    //   "error",
+    //   {
+    //     "extendDefaults": true,
+    //     "types": {
+    //       "{}": false
+    //     }
+    //   }
+    // ]
   },
   "plugins": [
     "import"
@@ -74,6 +70,9 @@
       ],
       "rules": {
         "@typescript-eslint/no-var-requires": "off"
+      },
+      "types": {
+        "{}": false
       }
     }
   ]

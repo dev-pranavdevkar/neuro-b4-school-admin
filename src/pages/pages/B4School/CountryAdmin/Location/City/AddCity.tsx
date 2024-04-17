@@ -30,16 +30,17 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from "draftjs-to-html";
 import dynamic from 'next/dynamic';
 
-interface State {
+interface City {
 
   name: string;
   country_code: string;
   state_code: string;
 
+
 }
 
-interface AddState {
-  onSubmit: (data: State) => void;
+interface AddCity {
+  onSubmit: (data: City) => void;
 }
 
 const schema = yup.object().shape({
@@ -49,9 +50,12 @@ const schema = yup.object().shape({
 
 export default function AddCity() {
   const [loading, setLoading] = useState(false)
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [states, setStates] = useState([]);
   const [editorData, setEditorData] = useState('');
   const [pageContent, setPageContent] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+ 
 
   const onEditorStateChange = (e) => {
     setEditorState(e);
@@ -136,25 +140,40 @@ export default function AddCity() {
     fetchCountry();
   }, []);
 
-  const fetchState = async () => {
 
-    try {
-      const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
-      setStateOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
-  };
-  useEffect(() => {
-    fetchState();
-  }, []);
+  const handleCountrySelect = (id:any) => {
+    setSelectedCountry(id);
+    axiosInstance.get(`admin/v1/country/get/${id}`)
+        .then((response) => {
+            setStates(response.data.data.States ? response.data.data.States : []);
+            console.log(states);
+        })
+        .catch((error) => {
+            console.error('Error fetching states:', error);
+        });
+};
+
+  // const fetchState = async () => {
+
+  //   try {
+  //     const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
+  //     setStateOptionTypes(response.data?.data)
+  //   }
+  //   catch (error) {
+  //     return (error)
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchState();
+  // }, []);
+
+
 
 
 
   return (
     <Card>
-      <CardHeader title='Add State' />
+      <CardHeader title='Add City' />
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} >
           <Grid container spacing={5}>
@@ -173,10 +192,12 @@ export default function AddCity() {
                 <Select
 
                   label='  Select Country'
-                  {...register('state_code')}
+                  {...register('country_code')}
                   error={Boolean(errors.attribute_type)}
-                  labelId='validation-state_code'
-                  aria-describedby='validation-state_code'
+                  labelId='validation-country_code'
+                  aria-describedby='validation-country_code'
+                  value={selectedCountry}
+                  onChange={(e) => handleCountrySelect(e.target.value)}
                 >
                   {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
@@ -195,8 +216,8 @@ export default function AddCity() {
               <FormControl fullWidth size='small'>
                 <InputLabel
                   id='validation-basic-attribute_type'
-                  error={Boolean(errors.country_code)}
-                  htmlFor='validation-basic-country_code'
+                  error={Boolean(errors.state_code)}
+                  htmlFor='validation-basic-state_code'
                 >
                   Select State
                 </InputLabel>
@@ -204,33 +225,34 @@ export default function AddCity() {
                 <Select
 
                   label=' Select State'
-                  {...register('country_code')}
-                  error={Boolean(errors.attribute_type)}
-                  labelId='validation-country_code'
-                  aria-describedby='validation-country_code'
+                  {...register('state_code')}
+                  error={Boolean(errors.state_code)}
+                  labelId='validation-state_code'
+                  aria-describedby='validation-state_code'
                 >
-                  {StateOptionTypes && StateOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+                  {states.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
                 </Select>
 
                 {errors.country_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
-                    {errors.country_code.message}
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-state_code'>
+                    {errors.state_code.message}
                   </FormHelperText>
                 )}
               </FormControl>
             </Grid>
+
             <Grid item xs={4}>
               <FormControl fullWidth>
 
                 <TextField
 
-                  label='State Name'
+                  label='City Name'
                   {...register('name')}
 
                   size='small'
-                  placeholder='State'
+                  placeholder='City'
                   error={Boolean(errors.name)}
                   aria-describedby='validation-async-name'
                 />

@@ -66,15 +66,21 @@ const schema = yup.object().shape({
 });
 
 export default function EditRegionalAdmin({ show, handleclose, selectedCountryPage }) {
-
+console.log("selectedCountryPage admin",selectedCountryPage)
   const [loading, setLoading] = useState(false)
   const [editorData, setEditorData] = useState();
   const [pageContent, setPageContent] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
+  const [selectedCountry, setSelectedCountry] = useState(selectedCountryPage.country_code);
+  const [selectedState, setSelectedState] = useState(selectedCountryPage.state_code);
+  const [selectedCity, setSelectedCity] = useState(selectedCountryPage.city_code);
+  const [selectedRegion, setSelectedRegion] = useState(selectedCountryPage.region_code);
   const [optionTypes, setOptionTypes] = useState([]);
-  const [StateOptionTypes, setStateOptionTypes] = useState([]);
-  const [CityOptionTypes, setCityOptionTypes] = useState([]);
-  const [RegionOptionTypes, setRegionOptionTypes] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [branchData, setBranchData] = useState([]);
+
   const {
     control,
     register,
@@ -160,6 +166,8 @@ export default function EditRegionalAdmin({ show, handleclose, selectedCountryPa
 
   }, [selectedCountryPage]);
 
+
+
   const fetchData = async () => {
 
     try {
@@ -175,6 +183,12 @@ export default function EditRegionalAdmin({ show, handleclose, selectedCountryPa
   useEffect(() => {
     fetchData();
   }, []);
+  useEffect(() => {
+    if (selectedCountryPage?.country_code){
+      handleCountrySelect(selectedCountryPage?.country_code)
+      
+    }
+  },[selectedCountryPage?.country_code])
 
   const fetchCountry = async () => {
 
@@ -190,47 +204,55 @@ export default function EditRegionalAdmin({ show, handleclose, selectedCountryPa
     fetchCountry();
   }, []);
 
-  const fetchState = async () => {
-
-    try {
-      const response = await axiosInstance.get(`/admin/v1/state/getAllWithoutLimit`)
-      setStateOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
+  const handleCountrySelect = (id: any) => {
+    setSelectedCountry(id);
+    axiosInstance.get(`admin/v1/country/get/${id}`)
+      .then((response) => {
+        setStates(response.data.data.States ? response.data.data.States : []);
+        console.log(states);
+      })
+      .catch((error) => {
+        console.error('Error fetching states:', error);
+      });
   };
-  useEffect(() => {
-    fetchState();
-  }, []);
 
-  const fetchCity = async () => {
 
-    try {
-      const response = await axiosInstance.get(`/admin/v1/city/getAllWithoutLimit`)
-      setCityOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
+  const handleStateSelect = (id: any) => {
+    setSelectedState(id);
+    axiosInstance.get(`admin/v1/state/get/${id}`)
+      .then((response) => {
+        setCities(response.data.data.Cities ? response.data.data.Cities : []);
+      })
+      .catch((error) => {
+        console.error('Error fetching cities:', error);
+      });
   };
-  useEffect(() => {
-    fetchCity();
-  }, []);
 
-  const fetchRegion = async () => {
-
-    try {
-      const response = await axiosInstance.get(`/admin/v1/region/getAllWithoutLimit`)
-      setRegionOptionTypes(response.data?.data)
-    }
-    catch (error) {
-      return (error)
-    }
+  const handleCitySelect = (id: any) => {
+    setSelectedCity(id);
+    axiosInstance.get(`admin/v1/city/get/${id}`)
+      .then((response) => {
+        setRegions(response.data.data.Regions ? response.data.data.Regions : []);
+      })
+      .catch((error) => {
+        console.error('Error fetching regions:', error);
+      });
   };
-  useEffect(() => {
-    fetchRegion();
-  }, []);
+
+  const handleRegionSelect = (id: any) => {
+    setSelectedRegion(id);
+    axiosInstance.get(`admin/v1/region/get/${id}`)
+      .then((response) => {
+        setBranchData(response.data.data ? response.data.data : []);
+
+      })
+      .catch((error) => {
+        console.error('Error fetching regions:', error);
+      });
+  };
+
+
+
 
   return (
     <Dialog
@@ -264,6 +286,142 @@ export default function EditRegionalAdmin({ show, handleclose, selectedCountryPa
 
         <form style={{ width: '100%' }} onSubmit={handleSubmit(onSubmit)} >
           <Grid container spacing={5}>
+            <Grid item xs={4}>
+
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-attribute_type'
+                  error={Boolean(errors.country_code)}
+                  htmlFor='validation-basic-country_code'
+                >
+                  Select Country
+                </InputLabel>
+
+                <Select
+
+                  label='  Select Country'
+                  {...register('country_code')}
+                  error={Boolean(errors.attribute_type)}
+                  labelId='validation-country_code'
+                  aria-describedby='validation-country_code'
+                  value={selectedCountry}
+                  defaultValue=''
+                  onChange={(e) => handleCountrySelect(e.target.value)}
+                >
+                  {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+
+
+                </Select>
+
+                {errors.country_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
+                    {errors.country_code.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-attribute_type'
+                  error={Boolean(errors.state_code)}
+                  htmlFor='validation-basic-state_code'
+                >
+                  Select State
+                </InputLabel>
+
+                <Select
+
+                  label=' Select State'
+                  {...register('state_code')}
+                  error={Boolean(errors.attribute_type)}
+                  labelId='validation-state_code'
+                  aria-describedby='validation-state_code'
+                  value={selectedState}
+                  defaultValue=''
+                  onChange={(e) => handleStateSelect(e.target.value)}
+                >
+                  {states.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+
+
+                </Select>
+
+                {errors.state_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-state_code'>
+                    {errors.state_code.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-attribute_type'
+                  error={Boolean(errors.city_code)}
+                  htmlFor='validation-basic-city_code'
+                >
+                  Select City
+                </InputLabel>
+
+                <Select
+
+                  label=' Select City'
+                  {...register('city_code')}
+                  error={Boolean(errors.attribute_type)}
+                  labelId='validation-city_code'
+                  aria-describedby='validation-city_code'
+                  value={selectedCity}
+                  defaultValue=''
+                  onChange={(e) => handleCitySelect(e.target.value)}
+                >
+                  {cities.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+
+
+                </Select>
+
+                {errors.city_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
+                    {errors.city_code.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-attribute_type'
+                  error={Boolean(errors.region_code)}
+                  htmlFor='validation-basic-region_code'
+                >
+                  Select Region
+                </InputLabel>
+
+                <Select
+
+                  label=' Select Region'
+                  {...register('region_code')}
+                  error={Boolean(errors.attribute_type)}
+                  labelId='validation-region_code'
+                  aria-describedby='validation-region_code'
+                  value={selectedRegion}
+                  defaultValue=''
+                  onChange={(e) => handleRegionSelect(e.target.value)}
+                >
+                  {regions.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+
+
+                </Select>
+
+                {errors.city_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_code'>
+                    {errors.region_code.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={4}>
               <FormControl fullWidth>
 
@@ -333,130 +491,8 @@ export default function EditRegionalAdmin({ show, handleclose, selectedCountryPa
               </FormControl>
 
             </Grid>
-            <Grid item xs={4}>
-
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-attribute_type'
-                  error={Boolean(errors.country_code)}
-                  htmlFor='validation-basic-country_code'
-                >
-                  Select Country
-                </InputLabel>
-
-                <Select
-
-                  label='  Select Country'
-                  {...register('country_code')}
-                  error={Boolean(errors.attribute_type)}
-                  labelId='validation-country_code'
-                  aria-describedby='validation-country_code'
-                >
-                  {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
-                </Select>
-
-                {errors.country_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
-                    {errors.country_code.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-attribute_type'
-                  error={Boolean(errors.state_code)}
-                  htmlFor='validation-basic-state_code'
-                >
-                  Select State
-                </InputLabel>
-
-                <Select
-
-                  label=' Select State'
-                  {...register('state_code')}
-                  error={Boolean(errors.attribute_type)}
-                  labelId='validation-state_code'
-                  aria-describedby='validation-state_code'
-                >
-                  {StateOptionTypes && StateOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
-
-
-                </Select>
-
-                {errors.state_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-state_code'>
-                    {errors.state_code.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-attribute_type'
-                  error={Boolean(errors.city_code)}
-                  htmlFor='validation-basic-city_code'
-                >
-                  Select City
-                </InputLabel>
-
-                <Select
-
-                  label=' Select City'
-                  {...register('city_code')}
-                  error={Boolean(errors.attribute_type)}
-                  labelId='validation-city_code'
-                  aria-describedby='validation-city_code'
-                >
-                  {CityOptionTypes && CityOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
-
-
-                </Select>
-
-                {errors.city_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
-                    {errors.city_code.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-attribute_type'
-                  error={Boolean(errors.region_code)}
-                  htmlFor='validation-basic-region_code'
-                >
-                  Select Region
-                </InputLabel>
-
-                <Select
-
-                  label=' Select Region'
-                  {...register('region_code')}
-                  error={Boolean(errors.attribute_type)}
-                  labelId='validation-region_code'
-                  aria-describedby='validation-region_code'
-                >
-                  {RegionOptionTypes && RegionOptionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
-
-
-                </Select>
-
-                {errors.city_code && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_code'>
-                    {errors.region_code.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
 
             <Grid item xs={12}>
 

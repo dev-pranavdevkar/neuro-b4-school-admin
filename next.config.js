@@ -4,22 +4,19 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 
 // Remove this if you're not using Fullcalendar features
-// const withTM = require('next-transpile-modules')([
-//   '@fullcalendar/common',
-//   '@fullcalendar/react',
-//   '@fullcalendar/daygrid',
-//   '@fullcalendar/list',
-//   '@fullcalendar/timegrid'
-// ])
+const withTM = require('next-transpile-modules')([
+  '@fullcalendar/common',
+  '@fullcalendar/react',
+  '@fullcalendar/daygrid',
+  '@fullcalendar/list',
+  '@fullcalendar/timegrid'
+])
 
-module.exports ={
+module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {
     esmExternals: false
-  },
-  typescript: {
-    ignoreBuildErrors: true,
   },
   webpack: config => {
     config.resolve.alias = {
@@ -28,5 +25,12 @@ module.exports ={
     }
 
     return config
-  }
-}
+  },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
+})

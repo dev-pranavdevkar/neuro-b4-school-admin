@@ -20,12 +20,6 @@ code {
 code[class*='language-'] {
   padding: 0;
 }
-
-.login-logo
-{
-  width: 100%;
-  max-height:20vh;
-  object-fit: contain;
+.css-mcmxbv-MuiTypography-root{
+  text-transform: capitalize !important;
 }
-
-

@@ -33,7 +33,7 @@ import dynamic from 'next/dynamic';
 interface State {
 
   name: string;
-  country_name: string;
+  country_code: string;
 
 }
 
@@ -147,8 +147,8 @@ export default function AddState() {
               <FormControl fullWidth size='small'>
                 <InputLabel
                   id='validation-basic-attribute_type'
-                  error={Boolean(errors.country_name)}
-                  htmlFor='validation-basic-country_name'
+                  error={Boolean(errors.country_code)}
+                  htmlFor='validation-basic-country_code'
                 >
                   Select Country
                 </InputLabel>
@@ -156,19 +156,19 @@ export default function AddState() {
                 <Select
 
                   label=' Select Country'
-                  {...register('country_name')}
+                  {...register('country_code')}
                   error={Boolean(errors.attribute_type)}
-                  labelId='validation-country_name'
-                  aria-describedby='validation-country_name'
+                  labelId='validation-country_code'
+                  aria-describedby='validation-country_code'
                 >
                   {optionTypes && optionTypes.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
 
 
                 </Select>
 
-                {errors.country_name && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_name'>
-                    {errors.country_name.message}
+                {errors.country_code && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-country_code'>
+                    {errors.country_code.message}
                   </FormHelperText>
                 )}
               </FormControl>
