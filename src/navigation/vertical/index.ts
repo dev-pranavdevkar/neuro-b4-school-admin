@@ -84,9 +84,9 @@ const Navigation: React.FC = () => {
         ]
       },
       {
-        icon: 'uil:blogger-alt',
-        title: 'Blogs',
-        path: '/pages/B4School/SuperAdmin/Blogs'
+        icon: 'bx:news',
+        title: 'News',
+        path: '/pages/B4School/SuperAdmin/News'
       },
       {
         icon: 'fluent:form-28-regular',

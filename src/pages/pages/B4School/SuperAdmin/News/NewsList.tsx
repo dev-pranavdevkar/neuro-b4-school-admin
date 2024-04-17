@@ -7,9 +7,9 @@ import Button from '@mui/material/Button'
 import Link from 'next/link'
 import { baseUrl } from 'src/configs/baseURL';
 import Icon from 'src/@core/components/icon'
-import UpdateBanner from './EditBanner';
-import DeleteBanner from './DeleteBanner';
-import ViewBanner from './BannerView';
+import UpdateNews from './UpdateNews';
+import DeleteNews from './DeleteNews';
+import ViewNews from './ViewNews';
 
 
 interface staticPage {
@@ -19,7 +19,7 @@ interface staticPage {
 
 }
 
-interface BannerListState {
+interface NewsListState {
   rows: staticPage[];
   totalRows: number;
   loading: boolean;
@@ -28,12 +28,12 @@ interface BannerListState {
   openDelete: boolean,
   openView: boolean,
   openEdit: boolean,
-  selectedBanner: {},
-  selectedBannerId: {}
+  selectedNews: {},
+  selectedNewsId: {}
 
 }
 
-class BannerList extends Component<{}, BannerListState> {
+class NewsList extends Component<{}, NewsListState> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -45,8 +45,8 @@ class BannerList extends Component<{}, BannerListState> {
       openDelete: false,
       openView: false,
       openEdit: false,
-      selectedBanner: {},
-      selectedBannerId: {}
+      selectedNews: {},
+      selectedNewsId: {}
     };
   }
 
@@ -60,9 +60,9 @@ class BannerList extends Component<{}, BannerListState> {
       rows: [],
       loading: true,
     })
-    axiosInstance.get(`/admin/v1/banner/getAllBanner?pageNo=${page}&limit=${pageSize}`)
+    axiosInstance.get(`/admin/v1/news/getAllNews?pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
-        console.log('Banner Data',response.data.data.rows)
+        console.log('News Data',response.data.data.rows)
         this.setState({
           rows: response.data.data.rows ? response.data.data.rows : [],
           totalRows: response.data.data.totalCount,
@@ -89,20 +89,20 @@ class BannerList extends Component<{}, BannerListState> {
   };
 
   handleViewClick = (params: GridCellParams) => {
-    this.setState({ selectedBanner: params.row })
+    this.setState({ selectedNews: params.row })
     this.setState({ openView: true });
 
   };
 
   handleEditClick = (params: GridCellParams) => {
-    this.setState({ selectedBanner: params.row })
+    this.setState({ selectedNews: params.row })
     this.setState({ openEdit: true });
 
   };
 
   handleDeleteClick = (params: GridCellParams) => {
     this.setState({ openDelete: true });
-    this.setState({ selectedBanner: params.row })
+    this.setState({ selectedNews: params.row })
     console.log("params.row.id",params.row.id)
 
   };
@@ -124,6 +124,18 @@ class BannerList extends Component<{}, BannerListState> {
         flex: 1,
       },
       {
+        field: 'location',
+        headerName: 'Location',
+        flex: 1,
+      },
+      {
+        field: 'date',
+        headerName: 'Date',
+        flex: 1,
+        // Render the formatted date
+        valueGetter: (params: GridCellParams) => this.formatDate(params.value as string),
+      },
+      {
         field: 'image',
         headerName: 'Image',
         flex: 1,
@@ -131,7 +143,9 @@ class BannerList extends Component<{}, BannerListState> {
           <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit:'contain' }} />
         ),
       },
- 
+
+
+
       {
         field: 'actions',
         headerName: 'Actions',
@@ -148,11 +162,11 @@ class BannerList extends Component<{}, BannerListState> {
       },
     ];
 
-    const { rows, totalRows, loading, pageSize, page, openDelete, openView, openEdit, selectedBanner, selectedBannerId } = this.state;
+    const { rows, totalRows, loading, pageSize, page, openDelete, openView, openEdit, selectedNews, selectedNewsId } = this.state;
 
     return (
       <Card >
-        <CardHeader title='Banner' />
+        <CardHeader title='News' />
         <Box sx={{ height: '70vh', width: "100%" }}>
           <DataGrid
             columns={columns}
@@ -169,16 +183,16 @@ class BannerList extends Component<{}, BannerListState> {
             onPageSizeChange={this.handlePageSizeChange}
           />
         </Box>
-        {openDelete ? <DeleteBanner selectedBanner={selectedBanner} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData())} /> : null}
+        {openDelete ? <DeleteNews selectedNews={selectedNews} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData())} /> : null}
 
 
-        {openEdit ? <UpdateBanner selectedBanner={selectedBanner} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData())} /> : null}
+        {openEdit ? <UpdateNews selectedNews={selectedNews} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData())} /> : null}
 
-        {openView ? <ViewBanner selectedBanner={selectedBanner} show={openView} handleclose={() => this.setState({ openView: false }, this.fetchData())} /> : null}
+        {openView ? <ViewNews selectedNews={selectedNews} show={openView} handleclose={() => this.setState({ openView: false }, this.fetchData())} /> : null}
       </Card>
 
     );
   }
 }
 
-export default BannerList;
+export default NewsList;

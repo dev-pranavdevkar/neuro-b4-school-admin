@@ -30,27 +30,30 @@ import dynamic from 'next/dynamic';
 import MenuItem from '@mui/material/MenuItem'
 import InputLabel from '@mui/material/InputLabel'
 import Select from '@mui/material/Select'
-interface Banner {
+interface Products {
 
-  title: string;
-  description: string;
+  name: string;
   image: string;
-
+  description: string;
+  price: string;
+  availability: string;
+  sold: string;
+  rating: string;
 }
 
-interface AddBannerPopup {
-  onSubmit: (data: Banner) => void;
+interface AddCountryPopup {
+  onSubmit: (data: Products) => void;
 }
 
 const schema = yup.object().shape({
 
-  title: yup.string().required('Title is Required'),
+  name: yup.string().required('Name is Required'),
 
 
 
 });
 
-export default function AddBanner() {
+export default function AddProducts() {
   const [loading, setLoading] = useState(false)
   const [editorData, setEditorData] = useState('');
   const [pageContent, setPageContent] = useState('');
@@ -83,17 +86,23 @@ export default function AddBanner() {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append('title', data.title);
-      formData.append('description', data.description);
+      formData.append('name', data.name);
       formData.append('image', data.image[0]); // Assuming you want to upload only one image
+      formData.append('description', data.description);
+      formData.append('price', data.price);
+      formData.append('availability', data.availability);
+      formData.append('sold', data.sold);
+      formData.append('rating', data.rating);
+      
+     
 
-      const Banner = await axiosInstance.post(
-        `/admin/v1/banner/createBanner`,
+      const Products = await axiosInstance.post(
+        `/admin/v1/product/createProduct`,
         formData
       );
 
       setLoading(false);
-      const responseData = Banner.data;
+      const responseData = Products.data;
 
       if (responseData.success) {
         toast.success(responseData.message, {
@@ -108,7 +117,7 @@ export default function AddBanner() {
       router.back();
     } catch (error) {
       console.error(error);
-      toast.error('Banner Could Not Be Added', {
+      toast.error('Products Could Not Be Added', {
         position: 'top-center'
       });
       setLoading(false);
@@ -118,45 +127,44 @@ export default function AddBanner() {
 
   return (
     <Card>
-      <CardHeader title='Add Banner' />
+      <CardHeader title='Add Products' />
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} >
           <Grid container spacing={5}>
-            <Grid item xs={8}>
+            <Grid item xs={4}>
               <FormControl fullWidth>
 
                 <TextField
 
-                  label='Banner Title'
-                  {...register('title')}
+                  label='Products Name'
+                  {...register('name')}
 
                   size='small'
-                  placeholder='Banner Title'
-                  error={Boolean(errors.title)}
+                  placeholder='Products Name'
+                  error={Boolean(errors.name)}
                   aria-describedby='validation-async-name'
                 />
 
-                {errors.title && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-title'>
-                    {errors.title.message}
+                {errors.name && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-name'>
+                    {errors.name.message}
                   </FormHelperText>
                 )}
 
               </FormControl>
 
             </Grid>
-
-
+         
             <Grid item xs={4}>
               <FormControl fullWidth>
 
                 <TextField
 
-                  label='Image'
+                  label='Primary Image'
                   {...register('image')}
                   type='file'
                   size='small'
-                  placeholder='Image'
+                  placeholder='Primary Image'
                   error={Boolean(errors.image)}
                   aria-describedby='validation-async-name'
                   InputLabelProps={{ shrink: true }} inputProps={{ accept: 'image/*' }}
@@ -172,18 +180,119 @@ export default function AddBanner() {
               </FormControl>
 
             </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
 
+                <TextField
+
+                  label='Price'
+                  {...register('price')}
+
+                  size='small'
+                  placeholder='Price'
+                  error={Boolean(errors.price)}
+                  aria-describedby='validation-async-price'
+                />
+
+                {errors.price && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-price'>
+                    {errors.price.message}
+                  </FormHelperText>
+                )}
+
+              </FormControl>
+
+            </Grid>
+
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Availability'
+                  {...register('availability')}
+                  type='text'
+                  size='small'
+                  placeholder='Availability'
+                  error={Boolean(errors.availability)}
+                  aria-describedby='validation-async-availability'
+                  InputLabelProps={{ shrink: true }}
+                />
+
+
+                {errors.availability && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-availability'>
+                    {errors.availability.message}
+                  </FormHelperText>
+                )}
+
+              </FormControl>
+
+            </Grid>
+
+           
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Sold Upto'
+                  {...register('sold')}
+                  type='text'
+                  size='small'
+                  placeholder='Sold Upto'
+                  error={Boolean(errors.sold)}
+                  aria-describedby='validation-async-sold'
+                  InputLabelProps={{ shrink: true }}
+                />
+
+
+                {errors.sold && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-sold'>
+                    {errors.sold.message}
+                  </FormHelperText>
+                )}
+
+              </FormControl>
+
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+
+                <TextField
+
+                  label='Rating'
+                  {...register('rating')}
+
+                  size='small'
+                  placeholder='Rating'
+                  error={Boolean(errors.rating)}
+                  aria-describedby='validation-async-rating'
+               
+
+                />
+
+
+                {errors.rating && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-rating'>
+                    {errors.rating.message}
+                  </FormHelperText>
+                )}
+
+              </FormControl>
+
+            </Grid>
 
             <Grid item xs={12}>
               <FormControl fullWidth>
 
                 <TextField
 
-                  label='Short Description'
+                  label='Primary Text'
                   {...register('description')}
 
                   size='small'
-                  placeholder='Short Description'
+                  placeholder='Primary Text'
                   error={Boolean(errors.description)}
                   aria-describedby='validation-async-description'
                   multiline

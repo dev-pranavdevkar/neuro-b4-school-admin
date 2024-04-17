@@ -20,52 +20,60 @@ import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 
-interface Banner {
-  title: string;
-  location: string;
+interface Products {
+  name: string;
+  price: string;
   description: string;
   image: string;
-  secondary_file: string;
-  date: string;
+  sold: string;
+  rating: string;
+  availability: string;
 }
 
-interface UpdateBanner {
-  onSubmit: (data: Banner) => void;
+interface UpdateProducts {
+  onSubmit: (data: Products) => void;
 }
 
 const schema = yup.object().shape({
-  title: yup.string().required('Title is Required'),
-
+  name: yup.string().required('Title is Required'),
+  price: yup.string().required('Location is Required'),
+  availability: yup.string().required('Date is Required'),
   image: yup.mixed().required('Primary Image is Required'),
-  
+  sold: yup.string().required('Secondary File is Required'),
+  rating: yup.string().required('Rating File is Required'),
   description: yup.string().required('Description is Required'),
 });
 
-export default function UpdateBanner({ show, handleclose, selectedBanner }) {
+export default function UpdateProducts({ show, handleclose, selectedProducts }) {
 
   const [loading, setLoading] = useState(false);
   const { control, register, setValue, handleSubmit, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedBanner) {
-      setValue('title', selectedBanner['title'] || '');
-
-      setValue('description', selectedBanner['description'] || '');
+    if (selectedProducts) {
+      setValue('name', selectedProducts['name'] || '');
+      setValue('price', selectedProducts['price'] || '');
+      setValue('availability', selectedProducts['availability'] || '');
+      setValue('description', selectedProducts['description'] || '');
     }
-  }, [selectedBanner, setValue]);
+  }, [selectedProducts, setValue]);
 
   const onSubmit = async (data: any) => {
-    const id = selectedBanner.id;
+    const id = selectedProducts.id;
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append('title', data.title);
+      formData.append('name', data.name);
+      formData.append('price', data.price);
+      formData.append('availability', data.availability);
       formData.append('description', data.description);
+      formData.append('sold', data.sold);
+      formData.append('rating', data.rating);
       if (data.image[0]) formData.append('image', data.image[0]);
-
-
-      const response = await axiosInstance.post(`/admin/v1/banner/updateBanner/${id}`, formData);
+     
+      
+      const response = await axiosInstance.post(`/admin/v1/product/updateProduct/${id}`, formData);
       setLoading(false);
       const responseData = response.data;
       if (responseData?.success) {
@@ -81,7 +89,7 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
           setError(key, { type: 'manual', message: error.response.data.data[key].join(',') });
         }
       }
-      toast.error('Banner Could Not Be Edited', { position: 'top-center' });
+      toast.error('Products Could Not Be Edited', { position: 'top-center' });
       setLoading(false);
     }
   };
@@ -100,7 +108,7 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
     >
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
-          Edit Banner
+          Edit Products
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -116,21 +124,53 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Banner Title'
-                  {...register('title')}
+                  label='Products Title'
+                  {...register('name')}
                   size='small'
-                  placeholder='Banner Title'
-                  error={Boolean(errors.title)}
+                  placeholder='Products Title'
+                  error={Boolean(errors.name)}
                 />
-                {errors.title && (
+                {errors.name && (
                   <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.title.message}
+                    {errors.name.message}
                   </FormHelperText>
                 )}
               </FormControl>
             </Grid>
-          
-         
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Price'
+                  {...register('price')}
+                  size='small'
+                  placeholder='Price'
+                  error={Boolean(errors.price)}
+                />
+                {errors.price && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.price.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Availability'
+                  {...register('availability')}
+                  type='text'
+                  size='small'
+                  placeholder='Availability'
+                  error={Boolean(errors.availability)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.availability && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.availability.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
@@ -149,7 +189,40 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
                 )}
               </FormControl>
             </Grid>
-            
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Sold Upto'
+                  {...register('sold')}
+                  type='text'
+                  size='small'
+                  error={Boolean(errors.sold)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.sold && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.sold.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Rating'
+                  {...register('rating')}
+                  type='text'
+                  size='small'
+                  error={Boolean(errors.rating)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.rating && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.rating.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
                 <TextField

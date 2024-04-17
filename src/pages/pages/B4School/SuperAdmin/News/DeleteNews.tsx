@@ -16,22 +16,22 @@ import toast from 'react-hot-toast'
 import Icon from 'src/@core/components/icon'
 import axiosInstance from "src/services/axios";
 
-export default function DeleteBanner({ show, handleclose, selectedBanner }) {
+export default function DeleteNews({ show, handleclose, selectedNews }) {
 
-  //..................API call to delete Banner page .................//
-  console.log(selectedBanner)
+  //..................API call to delete News page .................//
+  console.log(selectedNews)
   const handleDelete = async () => {
-    const id = selectedBanner.id
+    const id = selectedNews.id
     console.log(id);
 
-    axiosInstance.delete(`/admin/v1/banner/deleteBanner/${id}`)
+    axiosInstance.delete(`/admin/v1/news/deleteNews/${id}`)
       .then(res => {
-        toast.success('Banner Deleted Successfully', {
+        toast.success('News Deleted Successfully', {
           position: 'top-center'
         })
         handleclose()
       }).catch((error) => {
-        toast.error('Banner Could Not Deleted ', {
+        toast.error('News Could Not Deleted ', {
           position: 'top-center'
         })
         console.log(error.response.data.message)

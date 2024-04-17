@@ -3,7 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 const axiosInstance: AxiosInstance = axios.create({
     // Axios instance configuration options
   baseURL: 'https://api-b4school.shreekakajimasale.com/api'
-//   baseURL: 'http://192.168.0.114:3000/api'
+//   baseURL: 'http://192.168.0.121:3000/api'
 
 });
 

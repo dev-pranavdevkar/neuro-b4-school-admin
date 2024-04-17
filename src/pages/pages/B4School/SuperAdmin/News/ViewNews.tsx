@@ -22,9 +22,9 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import { baseUrl } from 'src/configs/baseURL'
-export default function ViewProgram({ show, handleclose, selectedProgramPage }) {
+export default function ViewNews({ show, handleclose, selectedNews }) {
 
-  const html = selectedProgramPage.id
+  const html = selectedNews.id
 
 
   return (
@@ -42,7 +42,7 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
 
-          Program
+          News
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -58,25 +58,36 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
           <div className='...'>
 
             <Grid container spacing={5}>
-              <Grid item xs={4}>
-                Title: <br />{selectedProgramPage.name}
+              <Grid item xs={12}>
+                Title: <br />{selectedNews.title}
 
               </Grid>
-            
-              <Grid item xs={8}>
+              <Grid item xs={6}>
+                Location:<br /> {selectedNews.location}
+
+              </Grid>
+              <Grid item xs={6}>
+                Date:<br /> {selectedNews.date}
+
+              </Grid>
+              <Grid item xs={12}>
                 Description:<br />
                 <p>
-                {selectedProgramPage.description}
+                {selectedNews.description}
                 </p>
 
               </Grid>
               <Grid item xs={6}>
                 Primary Image:<br />
-                <img src={`${baseUrl}${selectedProgramPage.image}`} alt="{baseUrl}{selectedProgramPage.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
+                <img src={`${baseUrl}${selectedNews.image}`} alt="{baseUrl}{selectedNews.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
 
               </Grid>
             
-           
+              <Grid item xs={6}>
+                Secondary File:<br />
+              <a href={`${baseUrl}${selectedNews.secondary_file}`}>View File</a>
+
+              </Grid>
     
               <Grid item xs={12}>
 

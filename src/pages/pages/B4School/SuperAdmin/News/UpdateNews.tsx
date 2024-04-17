@@ -20,7 +20,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from "next/router";
 import dynamic from 'next/dynamic';
 
-interface Banner {
+interface News {
   title: string;
   location: string;
   description: string;
@@ -29,43 +29,48 @@ interface Banner {
   date: string;
 }
 
-interface UpdateBanner {
-  onSubmit: (data: Banner) => void;
+interface UpdateNews {
+  onSubmit: (data: News) => void;
 }
 
 const schema = yup.object().shape({
   title: yup.string().required('Title is Required'),
-
+  location: yup.string().required('Location is Required'),
+  date: yup.date().required('Date is Required'),
   image: yup.mixed().required('Primary Image is Required'),
-  
+  secondary_file: yup.mixed().required('Secondary File is Required'),
   description: yup.string().required('Description is Required'),
 });
 
-export default function UpdateBanner({ show, handleclose, selectedBanner }) {
+export default function UpdateNews({ show, handleclose, selectedNews }) {
 
   const [loading, setLoading] = useState(false);
   const { control, register, setValue, handleSubmit, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const router = useRouter();
 
   useEffect(() => {
-    if (selectedBanner) {
-      setValue('title', selectedBanner['title'] || '');
-
-      setValue('description', selectedBanner['description'] || '');
+    if (selectedNews) {
+      setValue('title', selectedNews['title'] || '');
+      setValue('location', selectedNews['location'] || '');
+      setValue('date', selectedNews['date'] || '');
+      setValue('description', selectedNews['description'] || '');
     }
-  }, [selectedBanner, setValue]);
+  }, [selectedNews, setValue]);
 
   const onSubmit = async (data: any) => {
-    const id = selectedBanner.id;
+    const id = selectedNews.id;
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append('title', data.title);
+      formData.append('location', data.location);
+      formData.append('date', data.date);
       formData.append('description', data.description);
+      
       if (data.image[0]) formData.append('image', data.image[0]);
-
-
-      const response = await axiosInstance.post(`/admin/v1/banner/updateBanner/${id}`, formData);
+      if (data.secondary_file[0]) formData.append('secondary_file', data.secondary_file[0]);
+      
+      const response = await axiosInstance.post(`/admin/v1/news/updateNews/${id}`, formData);
       setLoading(false);
       const responseData = response.data;
       if (responseData?.success) {
@@ -81,7 +86,7 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
           setError(key, { type: 'manual', message: error.response.data.data[key].join(',') });
         }
       }
-      toast.error('Banner Could Not Be Edited', { position: 'top-center' });
+      toast.error('News Could Not Be Edited', { position: 'top-center' });
       setLoading(false);
     }
   };
@@ -100,7 +105,7 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
     >
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
-          Edit Banner
+          Edit News
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -116,10 +121,10 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Banner Title'
+                  label='News Title'
                   {...register('title')}
                   size='small'
-                  placeholder='Banner Title'
+                  placeholder='News Title'
                   error={Boolean(errors.title)}
                 />
                 {errors.title && (
@@ -129,8 +134,40 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
                 )}
               </FormControl>
             </Grid>
-          
-         
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Location'
+                  {...register('location')}
+                  size='small'
+                  placeholder='Location'
+                  error={Boolean(errors.location)}
+                />
+                {errors.location && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.location.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Date'
+                  {...register('date')}
+                  type='date'
+                  size='small'
+                  placeholder='Date'
+                  error={Boolean(errors.date)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.date && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.date.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
@@ -149,7 +186,23 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
                 )}
               </FormControl>
             </Grid>
-            
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Secondary File'
+                  {...register('secondary_file')}
+                  type='file'
+                  size='small'
+                  error={Boolean(errors.secondary_file)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.secondary_file && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.secondary_file.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={12}>
               <FormControl fullWidth>
                 <TextField

@@ -22,9 +22,9 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import { baseUrl } from 'src/configs/baseURL'
-export default function ViewProgram({ show, handleclose, selectedProgramPage }) {
+export default function ViewProducts({ show, handleclose, selectedProducts }) {
 
-  const html = selectedProgramPage.id
+  const html = selectedProducts.id
 
 
   return (
@@ -42,7 +42,7 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
 
-          Program
+          Product Details
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -58,25 +58,40 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
           <div className='...'>
 
             <Grid container spacing={5}>
-              <Grid item xs={4}>
-                Title: <br />{selectedProgramPage.name}
+              <Grid item xs={6}>
+                Product Name: <br />{selectedProducts.name}
 
               </Grid>
-            
-              <Grid item xs={8}>
+              <Grid item xs={6}>
+              Availability:<br /> {selectedProducts.availability}
+
+              </Grid>
+              <Grid item xs={4}>
+                Price:<br /> ${selectedProducts.price}
+
+              </Grid>
+              <Grid item xs={4}>
+                Sold Upto:<br /> {selectedProducts.sold}
+
+              </Grid>
+              <Grid item xs={4}>
+               Rating:<br /> {selectedProducts.rating}
+
+              </Grid>
+              <Grid item xs={12}>
                 Description:<br />
                 <p>
-                {selectedProgramPage.description}
+                {selectedProducts.description}
                 </p>
 
               </Grid>
               <Grid item xs={6}>
                 Primary Image:<br />
-                <img src={`${baseUrl}${selectedProgramPage.image}`} alt="{baseUrl}{selectedProgramPage.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
+                <img src={`${baseUrl}${selectedProducts.image}`} alt="{baseUrl}{selectedProducts.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
 
               </Grid>
             
-           
+         
     
               <Grid item xs={12}>
 

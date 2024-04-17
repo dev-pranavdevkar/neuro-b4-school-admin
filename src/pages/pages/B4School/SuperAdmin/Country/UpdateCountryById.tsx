@@ -50,7 +50,7 @@ export default function UpdateCountryById({ show, handleclose, selectedCountryPa
     try {
       const formData = new FormData();
       formData.append('name', data.name);
-      formData.append('image', data.image[0]); // Assuming you're uploading a single image
+      if (data.image[0]) formData.append('image', data.image[0]);
       const response = await axiosInstance.post(`/admin/v1/country/update/${id}`, formData);
       setLoading(false);
       const responseData = response.data;

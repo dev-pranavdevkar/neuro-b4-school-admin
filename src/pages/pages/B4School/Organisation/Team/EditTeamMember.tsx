@@ -113,7 +113,7 @@ export default function EditTeamMember({ show, handleclose, selectedTeamPage }: 
       // formData.append('google_plus_url', data.google_plus_url);
       // formData.append('twitter_url', data.twitter_url);
       // formData.append('linkedin_url', data.facebook_url);
-      formData.append('image', data.image[0]); 
+      if (data.image[0]) formData.append('image', data.image[0]);
       
       // Append other form data to formData as needed
       const response = await axiosInstance.post(`/admin/v1/ourTeam/updateTeam/${id}`, formData);

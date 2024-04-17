@@ -77,8 +77,21 @@ export default function AddTeamMember() {
         setLoading(true);
         try {
             const formData = new FormData();
+            if (data.region_id) {
+                formData.append('region_id', data.region_id);
+            }
+            formData.append('position', data.position);
+            formData.append('subject', data.subject);
+            formData.append('facebook_url', data.facebook_url);
+            formData.append('instagram_url', data.instagram_url);
+            formData.append('google_plus_url', data.google_plus_url);
+            formData.append('twitter_url', data.twitter_url);
+            formData.append('linkedin_url', data.linkedin_url);
+            formData.append('description', data.description);
+            formData.append('skills', data.skills);
             formData.append('name', data.name);
             formData.append('image', data.image[0]); // Assuming you want to upload only one image
+
             const staticPage = await axiosInstance.post(
                 `/admin/v1/ourTeam/create`,
                 formData
@@ -101,7 +114,8 @@ export default function AddTeamMember() {
                 for (const key in error.response.data.data) {
                     setError(key, { type: "manual", message: error.response.data.data[key].join(',') });
                 }
-            } else {
+            }
+             else {
                 toast.error('TeamMember Could Not Be Added', {
                     position: 'top-center',
                 });
@@ -141,8 +155,8 @@ export default function AddTeamMember() {
                             <FormControl fullWidth size='small'>
                                 <InputLabel
                                     id='validation-basic-attribute_type'
-                                    error={Boolean(errors.country_code)}
-                                    htmlFor='validation-basic-country_code'
+                                    error={Boolean(errors.region_id)}
+                                    htmlFor='validation-basic-region_id'
                                 >
                                     Select Branch
                                 </InputLabel>
