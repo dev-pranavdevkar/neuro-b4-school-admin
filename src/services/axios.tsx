@@ -13,13 +13,13 @@ axiosInstance.interceptors.request.use(
         const token = localStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
-            config.headers['Content-Type'] = 'multipart/form-data';
+            config.headers['Content-Type'] = 'application/json';
         }
 
         // Check if the request contains form data
         if (config.data instanceof FormData) {
-            // Set Content-Type header for form data
-           
+            config.headers['Content-Type'] = 'multipart/form-data';
+          
         }
 
         return config;

@@ -131,6 +131,17 @@ class BannerList extends Component<{}, BannerListState> {
           <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit:'contain' }} />
         ),
       },
+      {
+        field: 'region_id',
+        headerName: 'Region',
+        flex: 1,
+        valueGetter: (params: GridCellParams) => params.row.region?.name || 'B4-School', // Extract region name or default to 'B4-School'
+      },
+      {
+        field: 'isShowOnHomePage',
+        headerName: 'Is Show On HomePage',
+        flex: 1,
+      },
  
       {
         field: 'actions',

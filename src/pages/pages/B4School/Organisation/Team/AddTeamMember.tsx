@@ -33,6 +33,7 @@ import dynamic from 'next/dynamic';
 
 interface TeamMember {
     name: string;
+    isShowOnHomePage: boolean; 
 }
 
 interface AddCountryPopup {
@@ -49,7 +50,7 @@ export default function AddTeamMember() {
     const [editorData, setEditorData] = useState('');
     const [pageContent, setPageContent] = useState('');
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
+    const [isShowOnHomePage, setIsShowOnHomePage] = useState(false);
     const onEditorStateChange = (e) => {
         setEditorState(e);
     };
@@ -80,6 +81,7 @@ export default function AddTeamMember() {
             if (data.region_id) {
                 formData.append('region_id', data.region_id);
             }
+            formData.append('isShowOnHomePage', isShowOnHomePage); 
             formData.append('position', data.position);
             formData.append('subject', data.subject);
             formData.append('facebook_url', data.facebook_url);
@@ -115,7 +117,7 @@ export default function AddTeamMember() {
                     setError(key, { type: "manual", message: error.response.data.data[key].join(',') });
                 }
             }
-             else {
+            else {
                 toast.error('TeamMember Could Not Be Added', {
                     position: 'top-center',
                 });
@@ -123,7 +125,7 @@ export default function AddTeamMember() {
             setLoading(false);
         }
     };
-    
+
 
 
     const fetchData = async () => {
@@ -140,9 +142,14 @@ export default function AddTeamMember() {
         fetchData();
     }, []);
 
-// ====================================
-
-
+    // ====================================
+    // Handle checkbox change
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Update isShowOnHomePage based on the checkbox state
+        setIsShowOnHomePage(event.target.checked);
+      
+    };
+    console.log("isShowOnHomePage",isShowOnHomePage);
     return (
         <Card>
             <CardHeader title='Add Add Team Member' />
@@ -425,7 +432,25 @@ export default function AddTeamMember() {
                                 )}
                             </FormControl>
                         </Grid>
-
+                        <Grid item xs={4}>
+                            <FormControl fullWidth size='small'>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={isShowOnHomePage}
+                                            onChange={handleCheckboxChange}
+                                            id='validation-basic-isShowOnHomePage'
+                                        />
+                                    }
+                                    label='Show Branch Select'
+                                />
+                                {isShowOnHomePage && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-isShowOnHomePage'>
+                                        {/* Additional content to show when checkbox is checked */}
+                                    </FormHelperText>
+                                )}
+                            </FormControl>
+                        </Grid>
 
 
                         <Grid item xs={12}>

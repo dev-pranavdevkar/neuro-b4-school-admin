@@ -35,6 +35,7 @@ interface Banner {
   title: string;
   description: string;
   image: string;
+  isShowOnHomePage: boolean;
 
 }
 
@@ -79,10 +80,16 @@ export default function AddBanner() {
   };
 
   const [optionTypes, setOptionTypes] = useState([]);
+  const [isShowOnHomePage, setIsShowOnHomePage] = useState(false);
+  const [branch, setBranch] = useState([]);
   const onSubmit = async (data) => {
     setLoading(true);
     try {
       const formData = new FormData();
+      if (data.region_id) {
+        formData.append('region_id', data.region_id);
+      }
+      formData.append('isShowOnHomePage', isShowOnHomePage);
       formData.append('title', data.title);
       formData.append('description', data.description);
       formData.append('image', data.image[0]); // Assuming you want to upload only one image
@@ -116,12 +123,65 @@ export default function AddBanner() {
   };
 
 
+  const fetchData = async () => {
+
+    try {
+      const response = await axiosInstance.get(`/admin/v1/region/getAllWithoutLimit`)
+      setBranch(response.data?.data)
+    }
+    catch (error) {
+      return (error)
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // ====================================
+  // Handle checkbox change
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Update isShowOnHomePage based on the checkbox state
+    setIsShowOnHomePage(event.target.checked);
+
+  };
+  console.log("isShowOnHomePage", isShowOnHomePage);
   return (
     <Card>
       <CardHeader title='Add Banner' />
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} >
           <Grid container spacing={5}>
+            <Grid item xs={4}>
+
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-attribute_type'
+                  error={Boolean(errors.region_id)}
+                  htmlFor='validation-basic-region_id'
+                >
+                  Select Branch
+                </InputLabel>
+
+                <Select
+
+                  label=' Select Branch'
+                  {...register('region_id')}
+                  error={Boolean(errors.attribute_type)}
+                  labelId='validation-region_id'
+                  aria-describedby='validation-region_id'
+                >
+                  {branch.map((item, index) => (<MenuItem value={item.id} key={index} >{item.name}</MenuItem>))}
+
+
+                </Select>
+
+                {errors.region_id && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_id'>
+                    {errors.region_id.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={8}>
               <FormControl fullWidth>
 
@@ -203,7 +263,25 @@ export default function AddBanner() {
             </Grid>
 
 
-
+            <Grid item xs={4}>
+                            <FormControl fullWidth size='small'>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={isShowOnHomePage}
+                                            onChange={handleCheckboxChange}
+                                            id='validation-basic-isShowOnHomePage'
+                                        />
+                                    }
+                                    label='Show Branch Select'
+                                />
+                                {isShowOnHomePage && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-isShowOnHomePage'>
+                                        {/* Additional content to show when checkbox is checked */}
+                                    </FormHelperText>
+                                )}
+                            </FormControl>
+                        </Grid>
 
             <Grid item xs={12}>
               <Button size='large' type='submit' variant='contained' disabled={loading}>

@@ -16,51 +16,51 @@ import toast from 'react-hot-toast'
 import Icon from 'src/@core/components/icon'
 import axiosInstance from "src/services/axios";
 
-export default function ActivityDeletePopup({ show, handleclose, selectedActivityId }) {
+export default function DeleteActivity({ show, handleclose, selectedActivity }) {
 
-    //..................API call to delete Activity page .................//
+  //..................API call to delete Country page .................//
 
-    const handleDelete = async () => {
-        const id = selectedActivityId
-        axiosInstance.delete(`/admin/v1/gallery/deleteImage/${id}`)
-            .then(res => {
-                toast.success('Activity Deleted Successfully', {
-                    position: 'top-center'
-                })
-                handleclose()
-            }).catch((error) => {
-                toast.error('Activity Could Not Deleted ', {
-                    position: 'top-center'
-                })
-                console.log(error.response.data.message)
-            });
+  const handleDelete = async () => {
+    const id = selectedActivity
+    axiosInstance.delete(`admin/v1/gallery/deleteImage/${id}`)
+      .then(res => {
+        toast.success('Activity Deleted Successfully', {
+          position: 'top-center'
+        })
+        handleclose()
+      }).catch((error) => {
+        toast.error('Activity Could Not Deleted ', {
+          position: 'top-center'
+        })
+        console.log(error.response.data.message)
+      });
 
 
-    }
+  }
 
-    return (
-        <>
-            <Dialog fullWidth open={show} onClose={handleclose} sx={{ '& .MuiPaper-root': { width: '100%', maxWidth: 512 } }}>
-                <DialogContent sx={{ pb: 4 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                        <Box sx={{ mb: 9, maxWidth: '85%', textAlign: 'center', '& svg': { mb: 12.25, color: 'warning.main' } }}>
-                            <Icon icon='bx:error-circle' fontSize='5.5rem' />
-                            <Typography variant='h4' sx={{ color: 'text.secondary' }}>
-                                Are you sure?
-                            </Typography>
-                        </Box>
-                        <Typography sx={{ fontSize: '1.125rem' }}>You won't be able to see this content!</Typography>
-                    </Box>
-                </DialogContent>
-                <DialogActions sx={{ justifyContent: 'center' }}>
-                    <Button variant='contained' sx={{ mr: 1.5 }} onClick={handleDelete}>
-                        Yes, Delete !
-                    </Button>
-                    <Button variant='outlined' color='secondary' onClick={handleclose}>
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    )
+  return (
+    <>
+      <Dialog fullWidth open={show} onClose={handleclose} sx={{ '& .MuiPaper-root': { width: '100%', maxWidth: 512 } }}>
+        <DialogContent sx={{ pb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+            <Box sx={{ mb: 9, maxWidth: '85%', textAlign: 'center', '& svg': { mb: 12.25, color: 'warning.main' } }}>
+              <Icon icon='bx:error-circle' fontSize='5.5rem' />
+              <Typography variant='h4' sx={{ color: 'text.secondary' }}>
+                Are you sure?
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: '1.125rem' }}>You won't be able to see this content!</Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center' }}>
+          <Button variant='contained' sx={{ mr: 1.5 }} onClick={handleDelete}>
+            Yes, Delete !
+          </Button>
+          <Button variant='outlined' color='secondary' onClick={handleclose}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  )
 }

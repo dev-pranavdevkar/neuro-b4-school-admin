@@ -22,14 +22,14 @@ export default function DeleteTestimonial({ show, handleclose, selectedTestimoni
 
   const handleDelete = async () => {
     const id = selectedTestimonialId
-    axiosInstance.delete(`admin/v1/ourTestimonial/deleteTestimonial/${id}`)
+    axiosInstance.delete(`admin/v1/testimonial/deleteTestimonial/${id}`)
       .then(res => {
-        toast.success('Testimonial Member Deleted Successfully', {
+        toast.success('Testimonial Deleted Successfully', {
           position: 'top-center'
         })
         handleclose()
       }).catch((error) => {
-        toast.error('Testimonial Member Could Not Deleted ', {
+        toast.error('Testimonial Could Not Deleted ', {
           position: 'top-center'
         })
         console.log(error.response.data.message)

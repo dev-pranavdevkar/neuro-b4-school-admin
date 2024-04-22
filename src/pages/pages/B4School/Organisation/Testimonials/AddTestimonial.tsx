@@ -33,6 +33,7 @@ import dynamic from 'next/dynamic';
 
 interface Testimonial {
     name: string;
+    isShowOnHomePage: boolean;
 }
 
 interface AddCountryPopup {
@@ -49,7 +50,7 @@ export default function AddTestimonial() {
     const [editorData, setEditorData] = useState('');
     const [pageContent, setPageContent] = useState('');
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
+    const [isShowOnHomePage, setIsShowOnHomePage] = useState(false);
     const onEditorStateChange = (e) => {
         setEditorState(e);
     };
@@ -77,10 +78,18 @@ export default function AddTestimonial() {
         setLoading(true);
         try {
             const formData = new FormData();
+            if (data.region_id) {
+                formData.append('region_id', data.region_id);
+            }
+            formData.append('isShowOnHomePage', isShowOnHomePage);
+            formData.append('role', data.role);
+            formData.append('gender', data.gender);
+            formData.append('rating', data.rating);
+            formData.append('comment', data.comment);
             formData.append('name', data.name);
-            formData.append('region_id ', data.region_id );
-            formData.append('comment ', data.comment );
-            formData.append('image', data.image[0]); // Assuming you want to upload only one image
+            // if (data.image) {
+            // formData.append('image', data.image[0]); // Assuming you want to upload only one image
+            // }
             const staticPage = await axiosInstance.post(
                 `/admin/v1/testimonial/create`,
                 formData
@@ -103,7 +112,8 @@ export default function AddTestimonial() {
                 for (const key in error.response.data.data) {
                     setError(key, { type: "manual", message: error.response.data.data[key].join(',') });
                 }
-            } else {
+            }
+            else {
                 toast.error('Testimonial Could Not Be Added', {
                     position: 'top-center',
                 });
@@ -111,7 +121,7 @@ export default function AddTestimonial() {
             setLoading(false);
         }
     };
-    
+
 
 
     const fetchData = async () => {
@@ -128,9 +138,14 @@ export default function AddTestimonial() {
         fetchData();
     }, []);
 
-// ====================================
+    // ====================================
+    // Handle checkbox change
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Update isShowOnHomePage based on the checkbox state
+        setIsShowOnHomePage(event.target.checked);
 
-
+    };
+    console.log("isShowOnHomePage", isShowOnHomePage);
     return (
         <Card>
             <CardHeader title='Add Add Testimonial' />
@@ -175,11 +190,11 @@ export default function AddTestimonial() {
 
                                 <TextField
 
-                                    label=' Name'
+                                    label='Member Name'
                                     {...register('name')}
 
                                     size='small'
-                                    placeholder=' Name'
+                                    placeholder='Member Name'
                                     error={Boolean(errors.name)}
                                     aria-describedby='validation-async-name'
                                 />
@@ -196,44 +211,22 @@ export default function AddTestimonial() {
 
                                 <TextField
 
-                                    label='Role'
-                                    {...register('position')}
+                                    label='Parents Of'
+                                    {...register('role')}
 
                                     size='small'
-                                    placeholder='Role'
-                                    error={Boolean(errors.position)}
-                                    aria-describedby='validation-async-position'
+                                    placeholder='Parents Of'
+                                    error={Boolean(errors.role)}
+                                    aria-describedby='validation-async-role'
                                 />
 
-                                {errors.position && (
-                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-position'>
-                                        {errors.position.message}
+                                {errors.role && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-role'>
+                                        {errors.role.message}
                                     </FormHelperText>
                                 )}
                             </FormControl>
                         </Grid>
-                        <Grid item xs={4}>
-                            <FormControl fullWidth>
-
-                                <TextField
-
-                                    label='rating'
-                                    {...register('rating')}
-
-                                    size='small'
-                                    placeholder='Rating'
-                                    error={Boolean(errors.rating)}
-                                    aria-describedby='validation-async-rating'
-                                />
-
-                                {errors.rating && (
-                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-rating'>
-                                        {errors.rating.message}
-                                    </FormHelperText>
-                                )}
-                            </FormControl>
-                        </Grid>
-
                         <Grid item xs={4}>
                             <FormControl fullWidth>
 
@@ -258,6 +251,55 @@ export default function AddTestimonial() {
 
                         <Grid item xs={4}>
                             <FormControl fullWidth>
+
+                                <TextField
+
+                                    label='Rating'
+                                    {...register('rating')}
+
+                                    size='small'
+                                    placeholder='Rating'
+                                    error={Boolean(errors.rating)}
+                                    aria-describedby='validation-async-rating'
+                                />
+
+                                {errors.rating && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-rating'>
+                                        {errors.rating.message}
+                                    </FormHelperText>
+                                )}
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={4}>
+                            <FormControl fullWidth>
+
+                                <TextField
+
+                                    label='Comment'
+                                    {...register('comment')}
+
+                                    size='small'
+                                    placeholder='Comment'
+                                    error={Boolean(errors.comment)}
+                                    aria-describedby='validation-async-comment'
+                                    multiline
+                                    minRows={5}
+                                />
+
+                                {errors.comment && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-comment'>
+                                        {errors.comment.message}
+                                    </FormHelperText>
+                                )}
+
+                            </FormControl>
+                        </Grid>
+
+                   
+{/* 
+                        <Grid item xs={4}>
+                            <FormControl fullWidth>
                                 <TextField
                                     label='Image'
                                     {...register('image')}
@@ -274,42 +316,26 @@ export default function AddTestimonial() {
                                     </FormHelperText>
                                 )}
                             </FormControl>
-                        </Grid>
-
-               
-
-
-             
-
+                        </Grid> */}
                         <Grid item xs={4}>
-                            <FormControl fullWidth>
-
-                                <TextField
-
-                                    label='Description'
-                                    {...register('comment')}
-
-                                    size='small'
-                                    placeholder='Description'
-                                    error={Boolean(errors.comment)}
-                                    aria-describedby='validation-async-comment'
-                                    multiline
-                                    minRows={5}
+                            <FormControl fullWidth size='small'>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={isShowOnHomePage}
+                                            onChange={handleCheckboxChange}
+                                            id='validation-basic-isShowOnHomePage'
+                                        />
+                                    }
+                                    label='Show Branch Select'
                                 />
-
-                                {errors.comment && (
-                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-async-comment'>
-                                        {errors.comment.message}
+                                {isShowOnHomePage && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-isShowOnHomePage'>
+                                        {/* Additional content to show when checkbox is checked */}
                                     </FormHelperText>
                                 )}
-
                             </FormControl>
                         </Grid>
-
-                     
-
-                  
-
 
 
                         <Grid item xs={12}>
