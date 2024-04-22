@@ -2,72 +2,79 @@ import React, { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import DialogTitle from '@mui/material/DialogTitle';
-import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import CircularProgress from '@mui/material/CircularProgress';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { Grid, FormControl, InputLabel, Select, MenuItem, FormHelperText, TextField, Checkbox, FormControlLabel, Button, CircularProgress } from '@mui/material';
+import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
-import DialogContent from '@mui/material/DialogContent';
+import { yupResolver } from '@hookform/resolvers/yup';
 import axiosInstance from 'src/services/axios';
-import Icon from 'src/@core/components/icon';
-import { Grid } from '@mui/material';
 import toast from 'react-hot-toast';
-import { useForm, Controller } from 'react-hook-form';
-import { useRouter } from "next/router";
-import dynamic from 'next/dynamic';
-
-interface Banner {
-  title: string;
-  location: string;
-  description: string;
-  image: string;
-  secondary_file: string;
-  date: string;
-}
-
-interface UpdateBanner {
-  onSubmit: (data: Banner) => void;
+import Icon from 'src/@core/components/icon';
+import DialogContent from '@mui/material/DialogContent'; // Add this import
+interface EditBannerProps {
+  show: boolean;
+  handleclose: () => void;
+  selectedBanner: {
+    id: string;
+    title: string;
+    image: FileList;
+    description: string;
+    isShowOnHomePage: boolean;
+    region_id: string;
+  };
 }
 
 const schema = yup.object().shape({
-  title: yup.string().required('Title is Required'),
-
-  image: yup.mixed().required('Primary Image is Required'),
-  
-  description: yup.string().required('Description is Required'),
+  title: yup.string().required('Title is required'),
+  description: yup.string().required('Description is required'),
+  region_id: yup.string().required('Region is required'),
 });
 
-export default function UpdateBanner({ show, handleclose, selectedBanner }) {
-
+export default function EditBanner({ show, handleclose, selectedBanner }: EditBannerProps) {
   const [loading, setLoading] = useState(false);
-  const { control, register, setValue, handleSubmit, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
-  const router = useRouter();
+  const [branch, setBranchData] = useState([]);
+  const [isShowOnHomePage, setIsShowOnHomePage] = useState(selectedBanner.isShowOnHomePage);
+  const { control, register, handleSubmit, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(schema)
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (selectedBanner) {
-      setValue('title', selectedBanner['title'] || '');
-
-      setValue('description', selectedBanner['description'] || '');
+      setValue('title', selectedBanner.title || '');
+      setValue('description', selectedBanner.description || '');
+      setValue('isShowOnHomePage', selectedBanner.isShowOnHomePage || false);
+      setValue('region_id', selectedBanner.region_id || '');
+      // Set other form values accordingly
     }
   }, [selectedBanner, setValue]);
 
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get(`/admin/v1/region/getAllWithoutLimit`);
+      setBranchData(response.data?.data);
+    } catch (error) {
+      console.error(error);
+      // Handle error
+    }
+  };
+
   const onSubmit = async (data: any) => {
-    const id = selectedBanner.id;
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append('title', data.title);
       formData.append('description', data.description);
+      formData.append('isShowOnHomePage', isShowOnHomePage.toString()); // Convert boolean to string
       if (data.image[0]) formData.append('image', data.image[0]);
+      formData.append('region_id', data.region_id);
 
-
-      const response = await axiosInstance.post(`/admin/v1/banner/updateBanner/${id}`, formData);
+      const response = await axiosInstance.post(`/admin/v1/banner/updateBanner/${selectedBanner.id}`, formData);
       setLoading(false);
       const responseData = response.data;
+
       if (responseData?.success) {
         toast.success(responseData.message, { position: 'top-center' });
         handleclose();
@@ -78,12 +85,16 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
       console.error(error);
       if (error.response && error.response.status === 403) {
         for (const key in error.response.data.data) {
-          setError(key, { type: 'manual', message: error.response.data.data[key].join(',') });
+          // Handle errors and set form errors if needed
         }
       }
       toast.error('Banner Could Not Be Edited', { position: 'top-center' });
       setLoading(false);
     }
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsShowOnHomePage(event.target.checked);
   };
 
   return (
@@ -114,12 +125,40 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
         <form style={{ width: '100%' }} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={5}>
             <Grid item xs={4}>
+              <FormControl fullWidth size='small'>
+                <InputLabel
+                  id='validation-basic-region_id'
+                  error={Boolean(errors.region_id)}
+                  htmlFor='validation-basic-region_id'
+                >
+                  Select Branch
+                </InputLabel>
+                <Select
+                  label='Select Branch'
+                  {...register('region_id')}
+                  error={Boolean(errors.region_id)}
+                  labelId='validation-region_id'
+                  aria-describedby='validation-region_id'
+                  defaultValue={selectedBanner.region_id}
+                >
+                  {branch.map((item, index) => (
+                    <MenuItem value={item.id} key={index}>{item.name}</MenuItem>
+                  ))}
+                </Select>
+                {errors.region_id && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_id'>
+                    {errors.region_id.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Banner Title'
+                  label='Title'
                   {...register('title')}
                   size='small'
-                  placeholder='Banner Title'
+                  placeholder='Title'
                   error={Boolean(errors.title)}
                 />
                 {errors.title && (
@@ -129,15 +168,32 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
                 )}
               </FormControl>
             </Grid>
-          
-         
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Primary Image'
+                  label='Description'
+                  {...register('description')}
+                  size='small'
+                  placeholder='Description'
+                  error={Boolean(errors.description)}
+                  multiline
+                  minRows={5}
+                />
+                {errors.description && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.description.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Image'
                   {...register('image')}
                   type='file'
                   size='small'
+                  placeholder='Image'
                   error={Boolean(errors.image)}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{ accept: 'image/*' }}
@@ -149,20 +205,21 @@ export default function UpdateBanner({ show, handleclose, selectedBanner }) {
                 )}
               </FormControl>
             </Grid>
-            
-            <Grid item xs={12}>
+            <Grid item xs={4}>
               <FormControl fullWidth>
-                <TextField
-                  label='Description'
-                  {...register('description')}
-                  size='small'
-                  placeholder='Description'
-                  error={Boolean(errors.description)}
-                  multiline
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isShowOnHomePage}
+                      onChange={handleCheckboxChange}
+                      id='validation-basic-isShowOnHomePage'
+                    />
+                  }
+                  label='Show Branch Select'
                 />
-                {errors.description && (
+                {isShowOnHomePage && (
                   <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.description.message}
+                    {/* Additional content to show when checkbox is checked */}
                   </FormHelperText>
                 )}
               </FormControl>

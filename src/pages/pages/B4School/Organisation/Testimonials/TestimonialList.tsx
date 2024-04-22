@@ -8,14 +8,15 @@ import Link from 'next/link';
 import Icon from 'src/@core/components/icon';
 import EditTestimonial from './EditTestimonial';
 import DeleteTestimonial from './DeleteTestimonial';
+import { baseUrl } from 'src/configs/baseURL';
 
-interface Program {
+interface Team {
   id: string;
   name: string;
   country_name: string;
 }
 
-class TestimonialList extends Component<{}, Testimonial> {
+class TeamList extends Component<{}, Team> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -27,7 +28,7 @@ class TestimonialList extends Component<{}, Testimonial> {
       openDelete: false,
       openView: false,
       openEdit: false,
-      selectedTestimonialPage: [],
+      SelectedTestimonial: [],
       selectedTestimonialId: '',
     };
   }
@@ -35,38 +36,37 @@ class TestimonialList extends Component<{}, Testimonial> {
   componentDidMount() {
     this.fetchData();
   }
-
   fetchData = () => {
     const { pageSize, page } = this.state;
     this.setState({
       rows: [],
       loading: true,
-      selectedTestimonialPage: [],
+      SelectedTestimonial: [],
     });
     axiosInstance
       .get(`/admin/v1/testimonial/getAllTestimonial?pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
         if (response.data.success) {
-          // Check if response.data.data is an array before accessing its properties
-          if (Array.isArray(response.data.data.rows)) {
-            console.log("response.data.data is", response.data.data.rows)
-            this.setState({
-              rows: response.data.data.rows,
-              totalRows: response.data.data.length, // Assuming you want the length of the data array
-              loading: false,
-            });
-          } else {
-            console.error("Error fetching Testimonial data: Response data is not an array");
-          }
+          const rows = response.data.data.rows.map((row) => ({
+            ...row,
+            region_id: row.region_id || 'B4-School', // Extract region_id from region object
+          }));
+          this.setState({
+            rows: rows,
+            totalRows: response.data.data.count,
+            loading: false,
+          });
         } else {
-          console.error("Error fetching Testimonial data:", response.data.message);
+          console.error("Error fetching team data:", response.data.message);
         }
       })
+
       .catch((error) => {
-        console.error("Error fetching Testimonial data:", error);
+        console.error("Error fetching team data:", error);
       });
   };
-  
+
+
 
 
   handlePageChange = (page: number, e: any) => {
@@ -83,18 +83,18 @@ class TestimonialList extends Component<{}, Testimonial> {
   };
 
   handleViewClick = (params: GridCellParams) => {
-    this.setState({ selectedTestimonialPage: params.row, openView: true });
+    this.setState({ SelectedTestimonial: params.row, openView: true });
   };
 
   handleEditClick = (params: GridCellParams) => {
     console.log(params.row)
-    this.setState({ selectedTestimonialPage: params.row, openEdit: true });
+    this.setState({ SelectedTestimonial: params.row, openEdit: true });
     this.setState({ openEdit: true });
 
   };
 
   handleDeleteClick = (params: GridCellParams) => {
-    this.setState({ openDelete: true, selectedTestimonial: params.row.id });
+    this.setState({ openDelete: true, selectedTestimonialId: params.row.id });
   };
 
   render() {
@@ -106,20 +106,26 @@ class TestimonialList extends Component<{}, Testimonial> {
       },
       {
         field: 'role',
-        headerName: 'Role',
-        
+        headerName: 'Parents Of',
         flex: 1,
+      },
+    
+
+      {
+        field: 'region.name',
+        headerName: 'Region',
+        flex: 1,
+        valueGetter: (params: GridCellParams) => params.row.region?.name || 'B4-School', // Extract region name or default to 'B4-School'
       },
       {
         field: 'rating',
         headerName: 'Rating',
-        
         flex: 1,
+        // valueGetter: (params: GridCellParams) => params.row.region?.name || 'B4-School', // Extract region name or default to 'B4-School'
       },
       {
-        field: 'gender',
-        headerName: 'Gender',
-        
+        field: 'isShowOnHomePage',
+        headerName: 'Is Show On HomePage',
         flex: 1,
       },
       {
@@ -139,11 +145,11 @@ class TestimonialList extends Component<{}, Testimonial> {
       },
     ];
 
-    const { rows, totalRows, loading, pageSize, page, openDelete, openEdit, selectedTestimonialPage, selectedTestimonial } = this.state;
+    const { rows, totalRows, loading, pageSize, page, openDelete, openEdit, SelectedTestimonial, selectedTestimonialId } = this.state;
 
     return (
       <Card>
-        <CardHeader title='Program' />
+        <CardHeader title='Team' />
         <Box sx={{ height: '70vh', width: "100%" }}>
           <DataGrid
             columns={columns}
@@ -160,11 +166,11 @@ class TestimonialList extends Component<{}, Testimonial> {
             onPageSizeChange={this.handlePageSizeChange}
           />
         </Box>
-        {openDelete ? <DeleteTestimonial selectedTestimonial={selectedTestimonial} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData())} /> : null}
-        {openEdit ? <EditTestimonial selectedTestimonialPage={selectedTestimonialPage} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData())} /> : null}
+        {openDelete ? <DeleteTestimonial selectedTestimonialId={selectedTestimonialId} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData())} /> : null}
+        {openEdit ? <EditTestimonial SelectedTestimonial={SelectedTestimonial} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData())} /> : null}
       </Card>
     );
   }
 }
 
-export default TestimonialList;
+export default TeamList;

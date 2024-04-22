@@ -89,9 +89,9 @@ const Navigation: React.FC = () => {
         path: '/pages/B4School/SuperAdmin/News'
       },
       {
-        icon: 'fluent:form-28-regular',
-        title: 'Admissions',
-        path: '/pages/B4School/SuperAdmin/Admissions'
+        icon: 'bx:cart',
+        title: 'Products',
+        path: '/pages/B4School/SuperAdmin/Products'
       },
       {
         icon: 'bx:support',
@@ -160,7 +160,7 @@ const Navigation: React.FC = () => {
   } else {
     return [
       {
-        sectionTitle: 'Regional Admin'
+        sectionTitle: 'Branch Admin'
       },
       {
         title: 'Dashboards',
@@ -168,14 +168,61 @@ const Navigation: React.FC = () => {
         path: '/pages/B4School/ReginalAdmin/Dashboard'
       },
       {
-        icon: 'healthicons:i-training-class',
-        title: 'Class',
-        path: '/pages/B4School/ReginalAdmin/Classes'
+        icon: 'bx:current-location',
+        title: 'Location',
+        children: [
+     
+          {
+            title: 'Branch',
+            path: '/pages/B4School/CountryAdmin/Location/Region'
+          }
+        ]
       },
       {
-        icon: 'fluent:form-28-regular',
-        title: 'Admissions',
-        path: '/pages/B4School/ReginalAdmin/Admissions'
+        icon: 'bx:building',
+        title: 'Organization',
+        children: [
+          {
+            title: 'Banner Image',
+            path: '/pages/B4School/Organisation/Banner'
+          },
+          {
+            title: 'Programs',
+            path: '/pages/B4School/Organisation/Programs'
+          },
+          {
+            title: 'Team',
+            path: '/pages/B4School/Organisation/Team'
+          },
+          {
+            title: 'Activities',
+            path: '/pages/B4School/Organisation/Activities'
+          },
+          {
+            title: 'Testimonial',
+            path: '/pages/B4School/Organisation/Testimonials'
+          }
+        ]
+      },
+      {
+        icon: 'eos-icons:admin-outlined',
+        title: 'Admin',
+        children: [
+          {
+            title: 'Reginal Admin',
+            path: '/pages/B4School/CountryAdmin/RegionalAdmin'
+          }
+        ]
+      },
+      {
+        icon: 'bx:news',
+        title: 'News',
+        path: '/pages/B4School/SuperAdmin/News'
+      },
+      {
+        icon: 'bx:cart',
+        title: 'Products',
+        path: '/pages/B4School/SuperAdmin/Products'
       },
       {
         icon: 'bx:support',

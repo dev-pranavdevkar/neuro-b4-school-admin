@@ -33,6 +33,7 @@ import dynamic from 'next/dynamic';
 
 interface Program {
   name: string;
+  isShowOnHomePage: boolean;
 }
 
 interface AddCountryPopup {
@@ -49,7 +50,7 @@ export default function AddProgram() {
   const [editorData, setEditorData] = useState('');
   const [pageContent, setPageContent] = useState('');
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
+  const [isShowOnHomePage, setIsShowOnHomePage] = useState(false);
   const onEditorStateChange = (e) => {
     setEditorState(e);
   };
@@ -87,6 +88,7 @@ export default function AddProgram() {
       formData.append('name', data.name)
       formData.append('description', data.description)
       formData.append('region_id', data.region_id)
+      formData.append('isShowOnHomePage', isShowOnHomePage);
 console.log(data);
 
       const staticPage = await axiosInstance.post(
@@ -148,7 +150,13 @@ console.log(data);
 
   // ====================================
 
+    // Handle checkbox change
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      // Update isShowOnHomePage based on the checkbox state
+      setIsShowOnHomePage(event.target.checked);
 
+  };
+  console.log("isShowOnHomePage", isShowOnHomePage);
   return (
     <Card>
       <CardHeader title='Add Program' />
@@ -254,6 +262,25 @@ console.log(data);
 
               </FormControl>
             </Grid>
+            <Grid item xs={4}>
+                            <FormControl fullWidth size='small'>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={isShowOnHomePage}
+                                            onChange={handleCheckboxChange}
+                                            id='validation-basic-isShowOnHomePage'
+                                        />
+                                    }
+                                    label='Show Branch Select'
+                                />
+                                {isShowOnHomePage && (
+                                    <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-isShowOnHomePage'>
+                                        {/* Additional content to show when checkbox is checked */}
+                                    </FormHelperText>
+                                )}
+                            </FormControl>
+                        </Grid>
             <Grid item xs={12}>
               <Button size='large' type='submit' variant='contained' disabled={loading}>
                 {loading ? (
