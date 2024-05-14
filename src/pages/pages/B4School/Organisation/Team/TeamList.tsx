@@ -12,7 +12,7 @@ import { baseUrl } from 'src/configs/baseURL';
 
 interface Team {
   id: string;
-  name: string;
+  // name: string;
   country_name: string;
 }
 
@@ -122,7 +122,7 @@ class TeamList extends Component<{}, Team> {
         field: 'region',
         headerName: 'Region',
         flex: 1,
-        valueGetter: (params: GridCellParams) => params.row.region?.name || 'B4-School', // Extract region name or default to 'B4-School'
+        valueGetter: (params: GridCellParams) => params.row?.region?.name ?? 'B4-School', //Quetionmark added
       },
       {
         field: 'isShowOnHomePage',
