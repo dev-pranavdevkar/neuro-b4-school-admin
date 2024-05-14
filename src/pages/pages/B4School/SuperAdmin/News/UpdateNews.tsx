@@ -2,79 +2,77 @@ import React, { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Grid, FormControl, InputLabel, Select, MenuItem, FormHelperText, TextField, Checkbox, FormControlLabel, Button, CircularProgress } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import * as yup from 'yup';
+import Typography from '@mui/material/Typography';
+import Card from '@mui/material/Card';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
+import CircularProgress from '@mui/material/CircularProgress';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import DialogContent from '@mui/material/DialogContent';
 import axiosInstance from 'src/services/axios';
-import toast from 'react-hot-toast';
 import Icon from 'src/@core/components/icon';
-import DialogContent from '@mui/material/DialogContent'; // Add this import
-interface EditBannerProps {
-  show: boolean;
-  handleclose: () => void;
-  selectedBanner: {
-    id: string;
-    title: string;
-    image: FileList;
-    description: string;
-    isShowOnHomePage: boolean;
-    region_id: string;
-  };
+import { Grid } from '@mui/material';
+import toast from 'react-hot-toast';
+import { useForm, Controller } from 'react-hook-form';
+import { useRouter } from "next/router";
+import dynamic from 'next/dynamic';
+
+interface News {
+  title: string;
+  location: string;
+  description: string;
+  image: string;
+  secondary_file: string;
+  date: string;
+}
+
+interface UpdateNews {
+  onSubmit: (data: News) => void;
 }
 
 const schema = yup.object().shape({
-  title: yup.string().required('Title is required'),
-  description: yup.string().required('Description is required'),
-  region_id: yup.string().required('Region is required'),
+  title: yup.string().required('Title is Required'),
+  location: yup.string().required('Location is Required'),
+  date: yup.date().required('Date is Required'),
+  image: yup.mixed().required('Primary Image is Required'),
+  secondary_file: yup.mixed().required('Secondary File is Required'),
+  description: yup.string().required('Description is Required'),
 });
 
-export default function EditBanner({ show, handleclose, selectedBanner }: EditBannerProps) {
+export default function UpdateNews({ show, handleclose, selectedNews }) {
+
   const [loading, setLoading] = useState(false);
-  const [branch, setBranchData] = useState([]);
-  const [isShowOnHomePage, setIsShowOnHomePage] = useState(selectedBanner.isShowOnHomePage);
-  const { control, register, handleSubmit, setValue, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
-  });
+  const { control, register, setValue, handleSubmit, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const router = useRouter();
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    if (selectedBanner) {
-      setValue('title', selectedBanner.title || '');
-      setValue('description', selectedBanner.description || '');
-      setValue('isShowOnHomePage', selectedBanner.isShowOnHomePage || false);
-      setValue('region_id', selectedBanner.region_id || '');
-      // Set other form values accordingly
+    if (selectedNews) {
+      setValue('title', selectedNews['title'] || '');
+      setValue('location', selectedNews['location'] || '');
+      setValue('date', selectedNews['date'] || '');
+      setValue('description', selectedNews['description'] || '');
     }
-  }, [selectedBanner, setValue]);
-
-  const fetchData = async () => {
-    try {
-      const response = await axiosInstance.get(`/admin/v1/region/getAllWithoutLimit`);
-      setBranchData(response.data?.data);
-    } catch (error) {
-      console.error(error);
-      // Handle error
-    }
-  };
+  }, [selectedNews, setValue]);
 
   const onSubmit = async (data: any) => {
+    const id = selectedNews.id;
     setLoading(true);
     try {
       const formData = new FormData();
       formData.append('title', data.title);
+      formData.append('location', data.location);
+      formData.append('date', data.date);
       formData.append('description', data.description);
-      formData.append('isShowOnHomePage', isShowOnHomePage.toString()); // Convert boolean to string
+      
       if (data.image[0]) formData.append('image', data.image[0]);
-      formData.append('region_id', data.region_id);
-
-      const response = await axiosInstance.post(`/admin/v1/banner/updateBanner/${selectedBanner.id}`, formData);
+      if (data.secondary_file[0]) formData.append('secondary_file', data.secondary_file[0]);
+      
+      const response = await axiosInstance.post(`/admin/v1/news/updateNews/${id}`, formData);
       setLoading(false);
       const responseData = response.data;
-
       if (responseData?.success) {
         toast.success(responseData.message, { position: 'top-center' });
         handleclose();
@@ -85,16 +83,12 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
       console.error(error);
       if (error.response && error.response.status === 403) {
         for (const key in error.response.data.data) {
-          // Handle errors and set form errors if needed
+          setError(key, { type: 'manual', message: error.response.data.data[key].join(',') });
         }
       }
-      toast.error('Banner Could Not Be Edited', { position: 'top-center' });
+      toast.error('News Could Not Be Edited', { position: 'top-center' });
       setLoading(false);
     }
-  };
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsShowOnHomePage(event.target.checked);
   };
 
   return (
@@ -111,7 +105,7 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
     >
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
-          Edit Banner
+          Edit News
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -125,40 +119,12 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
         <form style={{ width: '100%' }} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={5}>
             <Grid item xs={4}>
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-region_id'
-                  error={Boolean(errors.region_id)}
-                  htmlFor='validation-basic-region_id'
-                >
-                  Select Branch
-                </InputLabel>
-                <Select
-                  label='Select Branch'
-                  {...register('region_id')}
-                  error={Boolean(errors.region_id)}
-                  labelId='validation-region_id'
-                  aria-describedby='validation-region_id'
-                  defaultValue={selectedBanner.region_id}
-                >
-                  {branch.map((item, index) => (
-                    <MenuItem value={item.id} key={index}>{item.name}</MenuItem>
-                  ))}
-                </Select>
-                {errors.region_id && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_id'>
-                    {errors.region_id.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Title'
+                  label='News Title'
                   {...register('title')}
                   size='small'
-                  placeholder='Title'
+                  placeholder='News Title'
                   error={Boolean(errors.title)}
                 />
                 {errors.title && (
@@ -171,17 +137,15 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Description'
-                  {...register('description')}
+                  label='Location'
+                  {...register('location')}
                   size='small'
-                  placeholder='Description'
-                  error={Boolean(errors.description)}
-                  multiline
-                  minRows={5}
+                  placeholder='Location'
+                  error={Boolean(errors.location)}
                 />
-                {errors.description && (
+                {errors.location && (
                   <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.description.message}
+                    {errors.location.message}
                   </FormHelperText>
                 )}
               </FormControl>
@@ -189,11 +153,28 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
             <Grid item xs={4}>
               <FormControl fullWidth>
                 <TextField
-                  label='Image'
+                  label='Date'
+                  {...register('date')}
+                  type='date'
+                  size='small'
+                  placeholder='Date'
+                  error={Boolean(errors.date)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                {errors.date && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.date.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Primary Image'
                   {...register('image')}
                   type='file'
                   size='small'
-                  placeholder='Image'
                   error={Boolean(errors.image)}
                   InputLabelProps={{ shrink: true }}
                   inputProps={{ accept: 'image/*' }}
@@ -207,19 +188,34 @@ export default function EditBanner({ show, handleclose, selectedBanner }: EditBa
             </Grid>
             <Grid item xs={4}>
               <FormControl fullWidth>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={isShowOnHomePage}
-                      onChange={handleCheckboxChange}
-                      id='validation-basic-isShowOnHomePage'
-                    />
-                  }
-                  label='Show Branch Select'
+                <TextField
+                  label='Secondary File'
+                  {...register('secondary_file')}
+                  type='file'
+                  size='small'
+                  error={Boolean(errors.secondary_file)}
+                  InputLabelProps={{ shrink: true }}
                 />
-                {isShowOnHomePage && (
+                {errors.secondary_file && (
                   <FormHelperText sx={{ color: 'error.main' }}>
-                    {/* Additional content to show when checkbox is checked */}
+                    {errors.secondary_file.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth>
+                <TextField
+                  label='Description'
+                  {...register('description')}
+                  size='small'
+                  placeholder='Description'
+                  error={Boolean(errors.description)}
+                  multiline
+                />
+                {errors.description && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {errors.description.message}
                   </FormHelperText>
                 )}
               </FormControl>

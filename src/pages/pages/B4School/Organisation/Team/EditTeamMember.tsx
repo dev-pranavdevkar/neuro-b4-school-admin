@@ -20,10 +20,11 @@ import { useForm } from 'react-hook-form';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
+import { Checkbox,FormControlLabel } from "@mui/material";
 
 interface CountryAdmin {
   name: string;
-  country_code: string;
+  isShowOnHomePage: boolean;
 }
 
 interface EditTeamMemberProps {
@@ -43,6 +44,7 @@ interface EditTeamMemberProps {
     twitter_url: string;
     linkedin_url: string;
     isSuperAdmin: boolean;
+    isShowOnHomePage: boolean;
     region_id: string;
   };
 }
@@ -56,7 +58,7 @@ const schema = yup.object().shape({
 export default function EditTeamMember({ show, handleclose, selectedTeamPage }: EditTeamMemberProps) {
   const [loading, setLoading] = useState(false);
   const [branch, setBranchData] = useState([]);
-
+  const [isShowOnHomePage, setIsShowOnHomePage] = useState(selectedTeamPage.isShowOnHomePage);
   const {
     control,
     register,
@@ -77,9 +79,9 @@ export default function EditTeamMember({ show, handleclose, selectedTeamPage }: 
     setValue('google_plus_url', selectedTeamPage.google_plus_url);
     setValue('twitter_url', selectedTeamPage.twitter_url);
     setValue('linkedin_url', selectedTeamPage.linkedin_url);
-    // setValue('isSuperAdmin', selectedTeamPage.isSuperAdmin);
+    setValue('isShowOnHomePage', selectedTeamPage.isShowOnHomePage);
     setValue('region_id', selectedTeamPage.region_id);
-    
+
     // Set other form values accordingly
   }, [selectedTeamPage]);
 
@@ -102,19 +104,13 @@ export default function EditTeamMember({ show, handleclose, selectedTeamPage }: 
     setLoading(true);
     try {
       const formData = new FormData();
+      formData.append('region_id', data.region_id);
       formData.append('name', data.name);
       formData.append('position', data.position);
-      // formData.append('region_id', data.region_id);
-      // formData.append('subject', data.subject);
-      // formData.append('description', data.description);
-      // formData.append('skills', data.skills);
-      // formData.append('facebook_url', data.facebook_url);
-      // formData.append('instagram_url', data.instagram_url);
-      // formData.append('google_plus_url', data.google_plus_url);
-      // formData.append('twitter_url', data.twitter_url);
-      // formData.append('linkedin_url', data.facebook_url);
-      formData.append('image', data.image[0]); 
-      
+      formData.append('isShowOnHomePage', isShowOnHomePage); // Include isShowOnHomePage in the form data
+
+      if (data.image[0]) formData.append('image', data.image[0]);
+
       // Append other form data to formData as needed
       const response = await axiosInstance.post(`/admin/v1/ourTeam/updateTeam/${id}`, formData);
       setLoading(false);
@@ -137,7 +133,10 @@ export default function EditTeamMember({ show, handleclose, selectedTeamPage }: 
       setLoading(false);
     }
   };
-
+  // Handle checkbox change
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsShowOnHomePage(event.target.checked);
+  };
   return (
     <Dialog
       scroll='body'
@@ -440,7 +439,27 @@ export default function EditTeamMember({ show, handleclose, selectedTeamPage }: 
                 )}
               </FormControl>
             </Grid>
-            {/* Add other form fields similarly */}
+
+
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isShowOnHomePage}
+                      onChange={handleCheckboxChange}
+                      id='validation-basic-isShowOnHomePage'
+                    />
+                  }
+                  label='Show Branch Select'
+                />
+                {isShowOnHomePage && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-isShowOnHomePage'>
+                    {/* Additional content to show when checkbox is checked */}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
             <Grid item xs={12}>
               <Button size='large' type='submit' variant='contained' disabled={loading}>
                 {loading ? (

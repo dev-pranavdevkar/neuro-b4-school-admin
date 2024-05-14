@@ -12,7 +12,7 @@ import { baseUrl } from 'src/configs/baseURL';
 
 interface Team {
   id: string;
-  name: string;
+  // name: string;
   country_name: string;
 }
 
@@ -41,7 +41,7 @@ class TeamList extends Component<{}, Team> {
     this.setState({
       rows: [],
       loading: true,
-      selectedTeamPage:[],
+      selectedTeamPage: [],
     });
     axiosInstance
       .get(`/admin/v1/ourTeam/getAllTeam?pageNo=${page}&limit=${pageSize}`)
@@ -49,7 +49,7 @@ class TeamList extends Component<{}, Team> {
         if (response.data.success) {
           const rows = response.data.data.rows.map((row) => ({
             ...row,
-            region_name: row.region.name, // Access the region name from the region object
+            region_id: row.region_id || 'B4-School', // Extract region_id from region object
           }));
           this.setState({
             rows: rows,
@@ -60,11 +60,13 @@ class TeamList extends Component<{}, Team> {
           console.error("Error fetching team data:", response.data.message);
         }
       })
+
       .catch((error) => {
         console.error("Error fetching team data:", error);
       });
   };
-  
+
+
 
 
   handlePageChange = (page: number, e: any) => {
@@ -112,13 +114,20 @@ class TeamList extends Component<{}, Team> {
         headerName: 'Image',
         flex: 1,
         renderCell: (params: GridCellParams) => (
-          <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit:'contain' }} />
+          <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit: 'contain' }} />
         ),
       },
-       
+
+      // {
+      //   field: 'region',
+      //   headerName: 'Region',
+      //   flex: 1,
+      //   valueGetter: (params: GridCellParams) => params.row?.region?.name || 'B4-School'
+
+      // },
       {
-        field: 'region_name',
-        headerName: 'Region',
+        field: 'isShowOnHomePage',
+        headerName: 'Is Show On HomePage',
         flex: 1,
       },
       {

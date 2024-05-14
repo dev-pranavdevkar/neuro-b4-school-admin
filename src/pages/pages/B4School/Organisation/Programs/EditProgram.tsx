@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import DialogTitle from '@mui/material/DialogTitle';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
@@ -13,7 +12,7 @@ import * as yup from 'yup';
 import DialogContent from '@mui/material/DialogContent';
 import axiosInstance from 'src/services/axios';
 import Icon from 'src/@core/components/icon';
-import { Grid } from '@mui/material';
+import { Grid, FormControlLabel, Checkbox } from '@mui/material';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { useRouter } from "next/router";
@@ -24,6 +23,7 @@ import MenuItem from '@mui/material/MenuItem'
 interface ProgramPage {
   id: number;
   name: string;
+  isShowOnHomePage: boolean;
 }
 
 interface UpdateProgramByIdProps {
@@ -42,13 +42,17 @@ export default function EditProgram({ show, handleclose, selectedProgramPage }: 
   const router = useRouter();
   const { control, register, handleSubmit, setValue, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
   const [branch, setBranch] = useState([]);
+  const [isShowOnHomePage, setIsShowOnHomePage] = useState(false); // Initialize with false
   useEffect(() => {
     // Update form values when selectedProgramPage changes
     setValue('name', selectedProgramPage?.name || '');
     setValue('description', selectedProgramPage?.description || '');
-  }, [setValue, selectedProgramPage]);
+    setValue('region_id', selectedProgramPage.region_id || '');
 
-  console.log("selectedProgramPage", selectedProgramPage);
+    // Update isShowOnHomePage state
+    setIsShowOnHomePage(selectedProgramPage.isShowOnHomePage);
+    console.log('isShowOnHomePage:', isShowOnHomePage); // Add this console.log
+  }, [setValue, selectedProgramPage]);
 
   const onSubmit = async (data: any) => {
     const id = selectedProgramPage.id;
@@ -56,9 +60,10 @@ export default function EditProgram({ show, handleclose, selectedProgramPage }: 
     try {
       const formData = new FormData();
       formData.append('name', data.name);
-      formData.append('image', data.image[0]); // Assuming you're uploading a single image
+      if (data.image[0]) formData.append('image', data.image[0]);
       formData.append('description', data.description)
       formData.append('region_id', data.region_id)
+      formData.append('isShowOnHomePage', isShowOnHomePage);
       const response = await axiosInstance.post(`/admin/v1/ourProgram/updateProgram/${id}`, formData);
       setLoading(false);
       const responseData = response.data;
@@ -93,6 +98,11 @@ export default function EditProgram({ show, handleclose, selectedProgramPage }: 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsShowOnHomePage(event.target.checked);
+  };
+  console.log(isShowOnHomePage)
   return (
     <Dialog
       scroll='body'
@@ -210,6 +220,25 @@ export default function EditProgram({ show, handleclose, selectedProgramPage }: 
                   </FormHelperText>
                 )}
 
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={isShowOnHomePage}
+                      onChange={handleCheckboxChange}
+                      id='validation-basic-isShowOnHomePage'
+                    />
+                  }
+                  label='Show Branch Select'
+                />
+                {isShowOnHomePage && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {/* Additional content to show when checkbox is checked */}
+                  </FormHelperText>
+                )}
               </FormControl>
             </Grid>
             <Grid item xs={12}>

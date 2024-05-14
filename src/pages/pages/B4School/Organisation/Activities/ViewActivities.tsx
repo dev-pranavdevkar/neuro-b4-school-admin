@@ -22,9 +22,9 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import { baseUrl } from 'src/configs/baseURL'
-export default function ViewProgram({ show, handleclose, selectedProgramPage }) {
+export default function ViewActivity({ show, handleclose, selectedActivityPage }) {
 
-  const html = selectedProgramPage.id
+  const html = selectedActivityPage.id
 
 
   return (
@@ -42,7 +42,7 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
       <DialogTitle id='user-view-plans' sx={{ textAlign: 'center', fontSize: '1.5rem !important' }}>
         <Grid container item xs={12} justifyContent='space-between' alignItems='center'>
 
-          Program
+          Activity
           <Icon icon='ic:baseline-close' style={{ cursor: 'pointer' }} onClick={handleclose} />
         </Grid>
       </DialogTitle>
@@ -59,20 +59,20 @@ export default function ViewProgram({ show, handleclose, selectedProgramPage }) 
 
             <Grid container spacing={5}>
               <Grid item xs={4}>
-                Title: <br />{selectedProgramPage.name}
+                Title: <br />{selectedActivityPage.name}
 
               </Grid>
             
               <Grid item xs={8}>
                 Description:<br />
                 <p>
-                {selectedProgramPage.description}
+                {selectedActivityPage.description}
                 </p>
 
               </Grid>
               <Grid item xs={6}>
                 Primary Image:<br />
-                <img src={`${baseUrl}${selectedProgramPage.image}`} alt="{baseUrl}{selectedProgramPage.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
+                <img src={`${baseUrl}${selectedActivityPage.image}`} alt="{baseUrl}{selectedActivityPage.image}" style={{maxHeight:'300px', objectFit:'contain'}} />
 
               </Grid>
             

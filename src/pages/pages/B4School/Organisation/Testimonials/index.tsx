@@ -15,20 +15,16 @@ export default function index() {
           <PageHeader
             title={
               <Typography variant='h5'>
-                Testimonial
+                Testimonials
               </Typography>
             }
-          // subtitle={
-          //     <Typography variant='body2'>
-          //         List
-          //     </Typography>
-          // }
+        
           />
         </Grid>
         <Grid item>
           <Link href='/pages/B4School/Organisation/Testimonials/AddTestimonial' passHref style={{ textDecoration: 'none' }}>
             <Button type='submit' variant='contained' style={{ marginBottom: '20px' }}>
-              Add Testimonial 
+              Add Testimonial
             </Button>
           </Link>
         </Grid>

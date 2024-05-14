@@ -5,7 +5,7 @@ import Button from '@mui/material/Button'
 import { Grid } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import PageHeader from 'src/@core/components/page-header';
-import BlogList from './BlogList';
+import NewsList from './NewsList';
 
 export default function index() {
   return (
@@ -15,27 +15,23 @@ export default function index() {
           <PageHeader
             title={
               <Typography variant='h5'>
-               Blogs
+               News
               </Typography>
             }
-          // subtitle={
-          //     <Typography variant='body2'>
-          //         List
-          //     </Typography>
-          // }
+   
           />
         </Grid>
         <Grid item>
-          <Link href='/pages/B4School/SuperAdmin/News/AddBlog' passHref style={{ textDecoration: 'none' }}>
+          <Link href='/pages/B4School/SuperAdmin/News/AddNews' passHref style={{ textDecoration: 'none' }}>
             <Button type='submit' variant='contained' style={{ marginBottom: '20px' }}>
-              Add Blog
+              Add News
             </Button>
           </Link>
         </Grid>
       </Grid>
       <Grid container direction="row">
         <Grid item xs={12}>
-          <BlogList />
+          <NewsList />
         </Grid>
 
       </Grid>

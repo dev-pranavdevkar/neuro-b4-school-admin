@@ -132,4 +132,4 @@ const AuthProvider = ({ children }: Props) => {
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
 }
 
-export { AuthContext, AuthProvider }
+export { AuthContext, AuthProvider,  }

@@ -14,23 +14,22 @@ import { baseUrl } from 'src/configs/baseURL';
 interface Program {
   id: string;
   name: string;
-  country_name: string;
+  image: string; // Assuming image is part of the Program interface
 }
 
-class ProgramList extends Component<{}, Program> {
+class ProgramList extends Component<{}, { rows: Program[], loading: boolean, pageSize: number, page: number, openDelete: boolean, openView: boolean, openEdit: boolean, selectedProgramPage: Program | null, selectedProgram: string | null }> {
   constructor(props: {}) {
     super(props);
     this.state = {
       rows: [],
-      totalRows: 0,
       loading: true,
       pageSize: 10,
       page: 0,
       openDelete: false,
       openView: false,
       openEdit: false,
-      selectedProgramPage: [],
-      selectedProgram: '',
+      selectedProgramPage: null,
+      selectedProgram: null,
     };
   }
 
@@ -40,62 +39,42 @@ class ProgramList extends Component<{}, Program> {
 
   fetchData = () => {
     const { pageSize, page } = this.state;
-    this.setState({
-      rows: [],
-      loading: true,
-      selectedProgramPage: [],
-    });
     axiosInstance
       .get(`/admin/v1/ourProgram/getAllProgram?pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
         if (response.data.success) {
-          // Check if response.data.data is an array before accessing its properties
-          if (Array.isArray(response.data.data)) {
-            this.setState({
-              rows: response.data.data,
-              totalRows: response.data.data.length, // Assuming you want the length of the data array
-              loading: false,
-            });
-          } else {
-            console.error("Error fetching Program data: Response data is not an array");
-          }
+          this.setState({
+            rows: response.data.data.rows || [], // Update to access data under data.rows
+            totalRows: response.data.data.count || 0, // Assuming count is available in data
+            loading: false,
+          });
         } else {
           console.error("Error fetching Program data:", response.data.message);
+          this.setState({
+            loading: false,
+          });
         }
       })
       .catch((error) => {
         console.error("Error fetching Program data:", error);
+        this.setState({
+          loading: false,
+        });
       });
   };
-  
 
-
-  handlePageChange = (page: number, e: any) => {
-    console.log("page", page);
-    this.setState({ page, loading: true }, () => {
-      this.fetchData();
-    });
-  };
-
-  handlePageSizeChange = (newPageSize: number, e: any) => {
-    this.setState({ pageSize: newPageSize }, () => {
-      this.fetchData();
-    });
-  };
 
   handleViewClick = (params: GridCellParams) => {
     this.setState({ selectedProgramPage: params.row, openView: true });
   };
 
-handleEditClick = (params: GridCellParams) => {
+  handleEditClick = (params: GridCellParams) => {
     this.setState({ selectedProgramPage: params.row, openEdit: true });
-};
+  };
 
-handleDeleteClick = (params: GridCellParams) => {
+  handleDeleteClick = (params: GridCellParams) => {
     this.setState({ selectedProgram: params.row.id, openDelete: true });
-};
-
-
+  };
   render() {
     const columns: GridColDef[] = [
       {
@@ -108,15 +87,29 @@ handleDeleteClick = (params: GridCellParams) => {
         headerName: 'Image',
         flex: 1,
         renderCell: (params: GridCellParams) => (
-          <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit:'contain' }} />
+          <img src={`${baseUrl}${params.value}`} alt={params.value} style={{ width: '25px', height: '25px', objectFit: 'contain' }} />
         ),
       },
+      
+      {
+        field: 'region',
+        headerName: 'Region',
+        flex: 1,
+        valueGetter: (params: GridCellParams) => params.row.region?.name || 'B4-School', // Extract region name or default to 'B4-School'
+      },
+      {
+        field: 'isShowOnHomePage',
+        headerName: 'Show On HomePage',
+        flex: 1,
+      },
+
       {
         field: 'actions',
         headerName: 'Actions',
         flex: 1,
         renderCell: (params: GridCellParams) => (
           <>
+            <Button style={{ color: '#84919d', margin: '-10px' }} onClick={() => this.handleViewClick(params)}><Icon icon='bx-show' /></Button>
             <Button style={{ color: '#84919d', margin: '-10px' }} onClick={() => this.handleEditClick(params)}>
               <Icon icon='bx-edit' />
             </Button>
@@ -128,7 +121,7 @@ handleDeleteClick = (params: GridCellParams) => {
       },
     ];
 
-    const { rows, totalRows, loading, pageSize, page, openDelete, openView, openEdit, selectedProgramPage, selectedProgram } = this.state;
+    const { rows, loading, pageSize, page, openDelete, openView, openEdit, selectedProgramPage, selectedProgram } = this.state;
 
     return (
       <Card>
@@ -137,10 +130,8 @@ handleDeleteClick = (params: GridCellParams) => {
           <DataGrid
             columns={columns}
             rows={rows}
-            getRowId={(row) => row.id}
             pagination
             pageSize={pageSize}
-            rowCount={totalRows}
             page={page}
             paginationMode="server"
             onPageChange={this.handlePageChange}
@@ -149,9 +140,10 @@ handleDeleteClick = (params: GridCellParams) => {
             onPageSizeChange={this.handlePageSizeChange}
           />
         </Box>
-        {openDelete ? <DeleteProgram selectedProgram={selectedProgram} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData())} /> : null}
-        {openEdit ? <EditProgram selectedProgramPage={selectedProgramPage} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData())} /> : null}
-        {/* {openView ? <ViewProgram selectedProgramPage={selectedProgramPage} show={openView} handleclose={() => this.setState({ openView: false }, this.fetchData())} /> : null} */}
+        {openDelete ? <DeleteProgram selectedProgram={selectedProgram} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData)} /> : null}
+        {openEdit ? <EditProgram selectedProgramPage={selectedProgramPage} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData)} /> : null}
+        {openView ? <ViewProgram selectedProgramPage={selectedProgramPage} show={openView} handleclose={() => this.setState({ openView: false }, this.fetchData)} /> : null}
+
       </Card>
     );
   }
