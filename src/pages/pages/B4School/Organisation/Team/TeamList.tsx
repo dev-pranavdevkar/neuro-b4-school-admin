@@ -122,7 +122,8 @@ class TeamList extends Component<{}, Team> {
         field: 'region',
         headerName: 'Region',
         flex: 1,
-        valueGetter: (params: GridCellParams) => params.row?.region?.name ?? 'B4-School', //Quetionmark added
+        valueGetter: (params: GridCellParams) => params.row?.region?.name || 'B4-School'
+
       },
       {
         field: 'isShowOnHomePage',
