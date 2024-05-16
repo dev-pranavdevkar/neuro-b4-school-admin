@@ -25,6 +25,7 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
       loading: true,
       pageSize: 10,
       page: 0,
+      totalRows: 0,
       openDelete: false,
       openView: false,
       openEdit: false,
@@ -40,12 +41,12 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
   fetchData = () => {
     const { pageSize, page } = this.state;
     axiosInstance
-      .get(`/admin/v1/gallery/getAllImages?pageNo=${page}&limit=${pageSize}`)
+      .get(`/admin/v1/gallery/getAllImages?sort=DESC&pageNo=${page}&limit=${pageSize}`)
       .then((response) => {
         if (response.data.success) {
           this.setState({
-            rows: response.data.data.rows || [], // Update to access data under data.rows
-            totalRows: response.data.data.count || 0, // Assuming count is available in data
+            rows: response.data.data.rows.reverse() || [], // Update to access data under data.rows
+            totalRows: response.data.data.count,
             loading: false,
           });
         } else {
@@ -74,6 +75,19 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
 
   handleDeleteClick = (params: GridCellParams) => {
     this.setState({ selectedActivity: params.row.id, openDelete: true });
+  };
+  handlePageChange = (page: number, e: any) => {
+    console.log("page", page)
+    this.setState({ page, loading: true }, () => {
+      this.fetchData();
+    });
+  };
+
+  handlePageSizeChange = (newPageSize: number, e: any) => {
+
+    this.setState({ pageSize: newPageSize }, () => {
+      this.fetchData();
+    });
   };
   render() {
     const columns: GridColDef[] = [
@@ -121,8 +135,8 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
       },
     ];
 
-    const { rows, loading, pageSize, page, openDelete, openView, openEdit, selectedActivityPage, selectedActivity } = this.state;
-
+    const {      totalRows,rows, loading, pageSize, page, openDelete, openView, openEdit, selectedActivityPage, selectedActivity } = this.state;
+   
     return (
       <Card>
         <CardHeader title='Activity' />
@@ -133,6 +147,8 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
             pagination
             pageSize={pageSize}
             page={page}
+            rowCount={totalRows}
+
             paginationMode="server"
             onPageChange={this.handlePageChange}
             loading={loading}
@@ -141,7 +157,7 @@ class ActivityList extends Component<{}, { rows: Activity[], loading: boolean, p
           />
         </Box>
         {openDelete ? <DeleteActivity selectedActivity={selectedActivity} show={openDelete} handleclose={() => this.setState({ openDelete: false }, this.fetchData)} /> : null}
-        {openEdit ? <EditActivity selectedActivityPage={selectedActivityPage} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData)} /> : null}
+        {openEdit ? <EditActivity  selectedActivityPage={selectedActivityPage} show={openEdit} handleclose={() => this.setState({ openEdit: false }, this.fetchData)} /> : null}
         {openView ? <ViewActivity selectedActivityPage={selectedActivityPage} show={openView} handleclose={() => this.setState({ openView: false }, this.fetchData)} /> : null}
 
       </Card>
