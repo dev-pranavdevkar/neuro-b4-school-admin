@@ -19,6 +19,10 @@ import { useRouter } from "next/router";
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
+import { baseUrl } from 'src/configs/baseURL';
+import RHFMultiselectDropZone from './components/RHFMultiselectDropZone';
+import RHFSelect from './components/RHFSelect';
+import RHFDropZone from './components/RHFDropZone';
 
 interface ActivityPage {
   id: number;
@@ -41,20 +45,26 @@ const schema = yup.object().shape({
 export default function EditActivity({ show, handleclose, selectedActivityPage }: UpdateActivityByIdProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { control, register, handleSubmit, setValue, setError, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const { control, register, handleSubmit, setValue, setError, formState: { errors },watch } = useForm({ resolver: yupResolver(schema) });
   const [branch, setBranch] = useState([]);
   const [isShowOnHomePage, setIsShowOnHomePage] = useState(selectedActivityPage?.isShowOnHomePage || false);
  const [multiImages, setMultiImages] = useState([]); // State for holding multiple images
+ const [uploadedImages, setUploadedImages] = useState([]);
 
   useEffect(() => {
     // Update form values when selectedActivityPage changes
     setValue('category', selectedActivityPage?.category || '');
     setValue('region_id', selectedActivityPage.region_id || '');
+    setValue('image', selectedActivityPage.image || '');
+    setValue('isShowOnHomePage', selectedActivityPage.isShowOnHomePage || false);
+
 
     // Update isShowOnHomePage state
     setIsShowOnHomePage(selectedActivityPage.isShowOnHomePage);
   }, [setValue, selectedActivityPage]);
 
+  const value = watch();
+console.log(value,"watch", selectedActivityPage,show==false);
   const onMultiFileChange = (e) => {
     let files = e.target.files;
 
@@ -63,13 +73,65 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
       fileReader.readAsDataURL(files[i]);
 
       fileReader.onload = (event) => {
-        console.log(event.target.result)
+        // console.log(event.target.result)
         // Push the base64 encoded image to multiImages state
         setMultiImages(prevState => [...prevState, event.target.result]);
       };
     }
   };
+  const handleImagemultipleDrop = (image) => {
+    const uploadedFiles = [];
+    const invalidFiles = [];
 
+    // Iterate through each dropped file
+    image.forEach(file => {
+        // Check if the file type is one of the accepted types
+        if (
+            file.type === 'image/jpeg' ||
+            file.type === 'image/png' ||
+            file.type === 'image/jpg' ||
+            file.type === 'image/gif'
+        ) {
+            uploadedFiles.push({
+                file: file,
+                url: URL.createObjectURL(file),
+                delete: false,
+            });
+        } else {
+            // If the file type is invalid, add it to the list of invalid files
+            invalidFiles.push(file);
+        }
+    });
+
+    // If there are invalid files, handle them (e.g., show error message)
+    if (invalidFiles.length > 0) {
+        console.error('Invalid files:', invalidFiles);
+        // Handle invalid files (e.g., show error message to the user)
+    }
+
+    // Update the state with only valid files
+    setUploadedImages((prevImages) => [...prevImages, ...uploadedFiles]);
+};
+const handleDeleteImage = (index) => {
+  setUploadedImages((prevImages) => {
+      const updatedImages = [...prevImages];
+      updatedImages.splice(index, 1); // Remove the image at the specified index
+      return updatedImages;
+  });
+};
+const Options = [
+  { label: 'English', value: 'english' },
+  { label: 'Math', value: 'math' },
+  { label: 'Physical Education', value: 'physical-education' },
+  { label: 'Art', value: 'art' },
+
+]
+const BranchOptions = branch.map((e) => ({
+  label: e?.name,
+  value: e.id
+}));
+
+console.log(BranchOptions,"BranchOptions")
   const onSubmit = async (data: any) => {
     setLoading(true);
     try {
@@ -93,13 +155,14 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
       setLoading(false);
       const responseData = response.data;
       if (responseData?.success) {
-        toast.success(responseData.message, { position: 'top-center' });
+        toast.success(responseData.message, { position: 'top-center' }); 
+        handleclose()  
       } else {
         toast.error(responseData.message, { position: 'top-center' });
       }
-      router.back();
+      // router.back();
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       toast.error('Program could not be added', { position: 'top-center' });
       setLoading(false);
     }
@@ -110,7 +173,7 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
       const response = await axiosInstance.get(`/admin/v1/region/getAllWithoutLimit`);
       setBranch(response.data?.data);
     } catch (error) {
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -121,7 +184,11 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsShowOnHomePage(event.target.checked);
   };
-
+  const handleImageDrop = (name, acceptedFiles) => {
+    setValue(name, acceptedFiles[0]);
+};
+  
+  
   return (
     <Dialog
       scroll='body'
@@ -149,36 +216,39 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
       <DialogContent sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <form style={{ width: '100%' }} onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <Grid container spacing={5}>
-            <Grid item xs={4}>
-              <FormControl fullWidth size='small'>
-                <InputLabel
-                  id='validation-basic-attribute_type'
-                  error={Boolean(errors.region_id)}
-                  htmlFor='validation-basic-region_id'
-                >
-                  Select Branch
-                </InputLabel>
-                <Select
-                  label='Select Branch'
-                  {...register('region_id')}
-                  error={Boolean(errors.region_id)}
-                  labelId='validation-region_id'
-                  aria-describedby='validation-region_id'
-                >
-                  {branch.map((item, index) => (
-                    <MenuItem value={item.id} key={index}>{item.name}</MenuItem>
-                  ))}
-                </Select>
-                {errors.region_id && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_id'>
-                    {errors.region_id.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+          <Grid item xs={4}>
+  {/* <FormControl fullWidth size='small'>
+    <InputLabel
+      id='validation-basic-attribute_type'
+      error={Boolean(errors.region_id)}
+      htmlFor='validation-basic-region_id'
+    >
+      Select Branch
+    </InputLabel>
+    <Select
+      label='Select Branch'
+      {...register('region_id')}
+      error={Boolean(errors.region_id)}
+      labelId='validation-region_id'
+      aria-describedby='validation-region_id'
+    >
+      {branch.map((item, index) => (
+        <MenuItem value={item.id} key={index}>{item.name}</MenuItem>
+      ))}
+    </Select>
+    {errors.region_id && (
+      <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-region_id'>
+        {errors.region_id.message}
+      </FormHelperText>
+    )}
+  </FormControl> */}
+  <RHFSelect control={control} options={BranchOptions} fullWidth name="region_id"  label={"Select Branch" } />
+
+</Grid>
+
 
             <Grid item xs={4}>
-              <FormControl fullWidth size='small'>
+              {/* <FormControl fullWidth size='small'>
                 <InputLabel
                   id='validation-basic-attribute_type'
                   error={Boolean(errors.category)}
@@ -203,29 +273,39 @@ export default function EditActivity({ show, handleclose, selectedActivityPage }
                     {errors.category.message}
                   </FormHelperText>
                 )}
-              </FormControl>
+              </FormControl> */}
+                          <RHFSelect control={control} options={Options} fullWidth name="category"  label={"Select Category" } />
+
             </Grid>
 
             <Grid item xs={4}>
-              <FormControl fullWidth size='small'>
-                <TextField
-                  label='Images'
-                  type='file'
-                  name="images"
-                  onChange={onMultiFileChange}
-                  size='small'
-                  error={Boolean(errors.additional_images)}
-                  aria-describedby='validation-async-images'
-                  InputLabelProps={{ shrink: true }} inputProps={{ accept: 'image/*', multiple: true }}
-                />
+  {/* <FormControl fullWidth size='small'>
+    <TextField
+      label='Images'
+      type='file'
+      name="images"
+      onChange={onMultiFileChange}
+      size='small'
+      error={Boolean(errors.additional_images)}
+      aria-describedby='validation-async-images'
+      InputLabelProps={{ shrink: true }} inputProps={{ accept: 'image/*', multiple: true }}
+    />
+   {selectedActivityPage && selectedActivityPage.image && (
+  <div>
+    <img src={`${baseUrl}${selectedActivityPage.image}`} alt="Selected Image" style={{ width: '100%', marginTop: '8px' }} />
+  </div>
+)}
 
-                {errors.additional_images && (
-                  <FormHelperText sx={{ color: 'error.main' }} id='validation-async-images'>
-                    {errors.additional_images.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </Grid>
+    {errors.additional_images && (
+      <FormHelperText sx={{ color: 'error.main' }} id='validation-async-images'>
+        {errors.additional_images.message}
+      </FormHelperText>
+    )}
+  </FormControl> */}
+            <RHFDropZone control={control} name="image" onImageDrop={handleImageDrop} imgUrl={`${baseUrl}${selectedActivityPage.image}`}/>
+
+</Grid>
+
 
             <Grid item xs={4}>
               <FormControl fullWidth size='small'>
